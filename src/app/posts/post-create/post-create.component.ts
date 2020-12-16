@@ -21,42 +21,10 @@ export class PostCreateComponent implements OnInit {
   private mode = 'create';
   private postId: string;
 
-  onImagePicked(event: Event) {
-    const file = (event.target as HTMLInputElement).files[0];
-    this.form.patchValue({ image: file });
-    this.form.get('image').updateValueAndValidity();
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.imagePreview = reader.result as string;
-    }
-    reader.readAsDataURL(file);
-  }
-
-  onSavePost() {
-    if (this.form.invalid) {
-      return;
-    }
-
-    this.isLoading = true;
-    if (this.mode === "create") {
-      this.postsService.addPost(
-        this.form.value.title,
-        this.form.value.content,
-        this.form.value.image
-      );
-    }
-    else {
-      this.postsService.updatePost(
-        this.postId,
-        this.form.value.title,
-        this.form.value.content,
-        this.form.value.image
-      );
-    }
-    this.form.reset();
-  }
-
-  constructor(public postsService: PostsService, public route: ActivatedRoute) {}
+  constructor(
+    public postsService: PostsService,
+    public route: ActivatedRoute
+  ) {}
 
   ngOnInit() {
     this.form = new FormGroup({
@@ -72,8 +40,7 @@ export class PostCreateComponent implements OnInit {
       })
     });
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
-      if (paramMap.has('postId'))
-      {
+      if (paramMap.has('postId')) {
         this.mode = 'edit';
         this.postId = paramMap.get('postId');
         this.isLoading = true;
@@ -88,14 +55,46 @@ export class PostCreateComponent implements OnInit {
           this.form.setValue({
             title: this.post.title,
             content: this.post.content,
-            imagePath: this.post.imagePath
+            image: this.post.imagePath
           });
         });
-      }
-      else {
+      } else {
         this.mode = 'create';
         this.postId = null;
       }
     });
+  }
+
+  onImagePicked(event: Event) {
+    const file = (event.target as HTMLInputElement).files[0];
+    this.form.patchValue({ image: file });
+    this.form.get('image').updateValueAndValidity();
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  onSavePost() {
+    if (this.form.invalid) {
+      return;
+    }
+    this.isLoading = true;
+    if (this.mode === "create") {
+      this.postsService.addPost(
+        this.form.value.title,
+        this.form.value.content,
+        this.form.value.image
+      );
+    } else {
+      this.postsService.updatePost(
+        this.postId,
+        this.form.value.title,
+        this.form.value.content,
+        this.form.value.image
+      );
+    }
+    this.form.reset();
   }
 }
