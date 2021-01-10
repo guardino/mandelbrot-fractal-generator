@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { Component } from "@angular/core";
+import { NgForm } from "@angular/forms";
 
-import { AuthService } from '../auth.service';
+import { AuthService } from "../auth.service";
 
 @Component({
-  templateUrl: './signup.component.html',
-  styleUrls: ['./signup.component.css']
+  templateUrl: "./signup.component.html",
+  styleUrls: ["./signup.component.css"]
 })
 export class SignupComponent {
   isLoading = false;
@@ -20,5 +20,3 @@ export class SignupComponent {
     this.authService.createUser(form.value.email, form.value.password);
   }
 }
-
-

@@ -1,4 +1,5 @@
-import { CanActivate,
+import {
+  CanActivate,
   ActivatedRouteSnapshot,
   RouterStateSnapshot,
   Router

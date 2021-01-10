@@ -1,22 +1,22 @@
-const path = require('path');
-const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
+const path = require("path");
+const express = require("express");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 
-const postsRoutes = require('./routes/posts');
-const userRoutes = require('./routes/user');
+const postsRoutes = require("./routes/posts");
+const userRoutes = require("./routes/user");
 
 const app = express();
 
 mongoose
   .connect(
-    'mongodb://localhost:27017/mean-course'
+    "mongodb://localhost:27017/mean-course"
   )
   .then(() => {
-    console.log('Connected to database!')
+    console.log("Connected to database!");
   })
   .catch(() => {
-    console.log('Connection to database failed!')
+    console.log("Connection failed!");
   });
 
 app.use(bodyParser.json());

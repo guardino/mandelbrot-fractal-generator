@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { Component } from "@angular/core";
+import { NgForm } from "@angular/forms";
 
-import { AuthService } from '../auth.service';
+import { AuthService } from "../auth.service";
 
 @Component({
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  templateUrl: "./login.component.html",
+  styleUrls: ["./login.component.css"]
 })
 export class LoginComponent {
   isLoading = false;
@@ -20,5 +20,3 @@ export class LoginComponent {
     this.authService.login(form.value.email, form.value.password);
   }
 }
-
-
