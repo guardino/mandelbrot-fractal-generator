@@ -36,7 +36,6 @@ export class PostsService {
         })
       )
       .subscribe(transformedPostData => {
-        console.log(transformedPostData);
         this.posts = transformedPostData.posts;
         this.postsUpdated.next({
           posts: [...this.posts],
@@ -55,6 +54,7 @@ export class PostsService {
       title: string;
       content: string;
       imagePath: string;
+      creator: string;
     }>("http://localhost:3000/api/posts/" + id);
   }
 
@@ -86,7 +86,8 @@ export class PostsService {
         id: id,
         title: title,
         content: content,
-        imagePath: image
+        imagePath: image,
+        creator: null
       };
     }
     this.http
@@ -97,7 +98,6 @@ export class PostsService {
   }
 
   deletePost(postId: string) {
-    return this.http
-      .delete("http://localhost:3000/api/posts/" + postId);
+    return this.http.delete("http://localhost:3000/api/posts/" + postId);
   }
 }
