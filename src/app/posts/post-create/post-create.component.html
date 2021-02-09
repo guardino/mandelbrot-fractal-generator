@@ -2,20 +2,25 @@
   <mat-spinner *ngIf="isLoading"></mat-spinner>
   <form [formGroup]="form" (submit)="onSavePost()" *ngIf="!isLoading">
     <mat-form-field>
-      <input matInput type="text" formControlName="title" placeholder="Post Title">
-      <mat-error *ngIf="form.get('title').invalid">Please enter a post title.</mat-error>
+      <input matInput type="text" formControlName="title" placeholder="Fractal Title">
+      <mat-error *ngIf="form.get('title').invalid">Please enter a fractal title.</mat-error>
     </mat-form-field>
-    <div>
-      <button mat-stroked-button type="button" (click)="filePicker.click()">Pick Image</button>
-      <input type="file" #filePicker (change)="onImagePicked($event)">
-    </div>
-    <div class="image-preview" *ngIf="imagePreview !== '' && imagePreview && form.get('image').valid">
-      <img [src]="imagePreview" [alt]="form.value.title">
-    </div>
     <mat-form-field>
-      <textarea matInput rows="4" formControlName="content" placeholder="Post Content"></textarea>
-      <mat-error *ngIf="form.get('content').invalid">Please enter a post title.</mat-error>
+      <input matInput rows="4" formControlName="xMin" placeholder="x_min">
+      <mat-error *ngIf="form.get('xMin').invalid">Please enter x_min.</mat-error>
     </mat-form-field>
-    <button mat-raised-button color="accent" type="submit">Save Post</button>
+    <mat-form-field>
+      <input matInput rows="4" formControlName="xMax" placeholder="x_max">
+      <mat-error *ngIf="form.get('xMax').invalid">Please enter x_max.</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput rows="4" formControlName="yMin" placeholder="y_min">
+      <mat-error *ngIf="form.get('yMin').invalid">Please enter y_min.</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput rows="4" formControlName="yMax" placeholder="y_max">
+      <mat-error *ngIf="form.get('yMax').invalid">Please enter y_max.</mat-error>
+    </mat-form-field>
+    <button mat-raised-button color="accent" type="submit">Create Fractal</button>
   </form>
 </mat-card>

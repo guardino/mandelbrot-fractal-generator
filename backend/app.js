@@ -10,7 +10,7 @@ const app = express();
 
 mongoose
   .connect(
-    "mongodb://localhost:27017/mean-course"
+    "mongodb://localhost:27017/mean-mandelbrot"
   )
   .then(() => {
     console.log("Connected to database!");

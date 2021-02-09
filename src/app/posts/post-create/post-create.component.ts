@@ -19,7 +19,6 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   post: Post;
   isLoading = false;
   form: FormGroup;
-  imagePreview: string;
   private mode = "create";
   private postId: string;
   private authStatusSub: Subscription;
@@ -40,11 +39,10 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       title: new FormControl(null, {
         validators: [Validators.required, Validators.minLength(3)]
       }),
-      content: new FormControl(null, { validators: [Validators.required] }),
-      image: new FormControl(null, {
-        validators: [Validators.required],
-        asyncValidators: [mimeType]
-      })
+      xMin: new FormControl(null, { validators: [Validators.required] }),
+      xMax: new FormControl(null, { validators: [Validators.required] }),
+      yMin: new FormControl(null, { validators: [Validators.required] }),
+      yMax: new FormControl(null, { validators: [Validators.required] }),
     });
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has("postId")) {
@@ -56,14 +54,19 @@ export class PostCreateComponent implements OnInit, OnDestroy {
           this.post = {
             id: postData._id,
             title: postData.title,
-            content: postData.content,
+            xMin: postData.xMin,
+            xMax: postData.xMax,
+            yMin: postData.yMin,
+            yMax: postData.yMax,
             imagePath: postData.imagePath,
             creator: postData.creator
           };
           this.form.setValue({
             title: this.post.title,
-            content: this.post.content,
-            image: this.post.imagePath
+            xMin: this.post.xMin,
+            xMax: this.post.xMax,
+            yMin: this.post.yMin,
+            yMax: this.post.yMax
           });
         });
       } else {
@@ -71,17 +74,6 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.postId = null;
       }
     });
-  }
-
-  onImagePicked(event: Event) {
-    const file = (event.target as HTMLInputElement).files[0];
-    this.form.patchValue({ image: file });
-    this.form.get("image").updateValueAndValidity();
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.imagePreview = reader.result as string;
-    };
-    reader.readAsDataURL(file);
   }
 
   onSavePost() {
@@ -92,15 +84,21 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     if (this.mode === "create") {
       this.postsService.addPost(
         this.form.value.title,
-        this.form.value.content,
-        this.form.value.image
+        this.form.value.xMin,
+        this.form.value.xMax,
+        this.form.value.yMin,
+        this.form.value.yMax,
+        null
       );
     } else {
       this.postsService.updatePost(
         this.postId,
         this.form.value.title,
-        this.form.value.content,
-        this.form.value.image
+        this.form.value.xMin,
+        this.form.value.xMax,
+        this.form.value.yMin,
+        this.form.value.yMax,
+        null
       );
     }
     this.form.reset();

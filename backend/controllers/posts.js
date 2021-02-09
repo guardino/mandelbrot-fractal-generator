@@ -1,11 +1,18 @@
+const execSync = require('child_process').execSync;
+const fs = require('fs');
+
 const Post = require("../models/post");
 
 exports.createPost = (req, res, next) => {
-  const url = req.protocol + "://" + req.get("host");
+  imagePath = generateMandelbrot(req);
+
   const post = new Post({
     title: req.body.title,
-    content: req.body.content,
-    imagePath: url + "/images/" + req.file.filename,
+    xMin: req.body.xMin,
+    xMax: req.body.xMax,
+    yMin: req.body.yMin,
+    yMax: req.body.yMax,
+    imagePath: imagePath,
     creator: req.userData.userId
   });
   post
@@ -27,15 +34,15 @@ exports.createPost = (req, res, next) => {
 };
 
 exports.updatePost = (req, res, next) => {
-  let imagePath = req.body.imagePath;
-  if (req.file) {
-    const url = req.protocol + "://" + req.get("host");
-    imagePath = url + "/images/" + req.file.filename;
-  }
+  imagePath = generateMandelbrot(req);
+
   const post = new Post({
     _id: req.body.id,
     title: req.body.title,
-    content: req.body.content,
+    xMin: req.body.xMin,
+    xMax: req.body.xMax,
+    yMin: req.body.yMin,
+    yMax: req.body.yMax,
     imagePath: imagePath,
     creator: req.userData.userId
   });
@@ -113,3 +120,20 @@ exports.deletePost = (req, res, next) => {
       });
     });
 };
+
+function generateMandelbrot(req) {
+  const cmd = "cd /d C:\\Users\\Cesare\\Git\\mean-mandelbrot\\backend\\images & mandelbrot.exe -s 1024 " +  req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
+  console.log("RUNNING: " + cmd)
+  result = execSync(cmd);
+
+  const imageFilename = Date.now() + ".png";
+
+  fs.rename("C:\\Users\\Cesare\\Git\\mean-mandelbrot\\backend\\images\\contours.png", "C:\\Users\\Cesare\\Git\\mean-mandelbrot\\backend\\images\\" + imageFilename, function(err) {
+    if ( err ) console.log("ERROR: " + err);
+  });
+
+  const url = req.protocol + "://" + req.get("host");
+  imagePath = url + "/images/" + imageFilename;
+
+  return imagePath;
+}

@@ -28,7 +28,10 @@ export class PostsService {
             posts: postData.posts.map(post => {
               return {
                 title: post.title,
-                content: post.content,
+                xMin: post.xMin,
+                xMax: post.xMax,
+                yMin: post.yMin,
+                yMax: post.yMax,
                 id: post._id,
                 imagePath: post.imagePath,
                 creator: post.creator
@@ -55,17 +58,23 @@ export class PostsService {
     return this.http.get<{
       _id: string;
       title: string;
-      content: string;
+      xMin: string;
+      xMax: string;
+      yMin: string;
+      yMax: string;
       imagePath: string;
       creator: string;
     }>(BACKEND_URL + id);
   }
 
-  addPost(title: string, content: string, image: File) {
+  addPost(title: string, xMin: string, xMax: string, yMin: string, yMax: string, image: File) {
     const postData = new FormData();
     postData.append("title", title);
-    postData.append("content", content);
-    postData.append("image", image, title);
+    postData.append("xMin", xMin);
+    postData.append("xMax", xMax);
+    postData.append("yMin", yMin);
+    postData.append("yMax", yMax);
+    postData.append("image", image);
     this.http
       .post<{ message: string; post: Post }>(
         BACKEND_URL,
@@ -76,19 +85,25 @@ export class PostsService {
       });
   }
 
-  updatePost(id: string, title: string, content: string, image: File | string) {
+  updatePost(id: string, title: string, xMin: string, xMax: string, yMin: string, yMax: string, image: File | string) {
     let postData: Post | FormData;
     if (typeof image === "object") {
       postData = new FormData();
       postData.append("id", id);
       postData.append("title", title);
-      postData.append("content", content);
-      postData.append("image", image, title);
+      postData.append("xMin", xMin);
+      postData.append("xMax", xMax);
+      postData.append("yMin", yMin);
+      postData.append("yMax", yMax);
+      postData.append("image", image);
     } else {
       postData = {
         id: id,
         title: title,
-        content: content,
+        xMin: xMin,
+        xMax: xMax,
+        yMin: yMin,
+        yMax: yMax,
         imagePath: image,
         creator: null
       };
