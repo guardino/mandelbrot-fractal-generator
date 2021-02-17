@@ -1,3 +1,4 @@
+const path = require("path");
 const multer = require("multer");
 
 const MIME_TYPE_MAP = {
@@ -13,7 +14,7 @@ const storage = multer.diskStorage({
     if (isValid) {
       error = null;
     }
-    cb(error, "backend/images");
+    cb(error, path.join(__dirname, "../images"));
   },
   filename: (req, file, cb) => {
     const name = file.originalname
