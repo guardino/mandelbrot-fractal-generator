@@ -1,5 +1,6 @@
 const execSync = require('child_process').execSync;
 const fs = require('fs');
+const path = require("path");
 
 const Post = require("../models/post");
 
@@ -122,13 +123,13 @@ exports.deletePost = (req, res, next) => {
 };
 
 function generateMandelbrot(req) {
-  const cmd = "cd /d C:\\Users\\Cesare\\Git\\mean-mandelbrot\\backend\\images & mandelbrot.exe -s 1024 " +  req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
+  const cmd = "cd " + path.join(__dirname, "../images") + " & mandelbrot.exe -s 1024 " +  req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
   console.log("RUNNING: " + cmd)
   result = execSync(cmd);
 
   const imageFilename = Date.now() + ".png";
 
-  fs.rename("C:\\Users\\Cesare\\Git\\mean-mandelbrot\\backend\\images\\contours.png", "C:\\Users\\Cesare\\Git\\mean-mandelbrot\\backend\\images\\" + imageFilename, function(err) {
+  fs.rename(path.join(__dirname, "../images/") + "contours.png", path.join(__dirname, "../images/") + imageFilename, function(err) {
     if ( err ) console.log("ERROR: " + err);
   });
 
