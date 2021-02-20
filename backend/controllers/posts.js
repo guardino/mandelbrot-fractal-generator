@@ -4,6 +4,8 @@ const path = require("path");
 
 const Post = require("../models/post");
 
+var isWin = process.platform === "win32";
+
 exports.createPost = (req, res, next) => {
   imagePath = generateMandelbrot(req);
 
@@ -123,7 +125,8 @@ exports.deletePost = (req, res, next) => {
 };
 
 function generateMandelbrot(req) {
-  const cmd = "cd " + path.join(__dirname, "../images") + " & mandelbrot.exe -s 1024 " +  req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
+  const mandelbrot_exe = isWin ? "mandelbrot.exe" : "./mandelbrot";
+  const cmd = "cd " + path.join(__dirname, "../images") + " && " + mandelbrot_exe + " -s 1024 " +  req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
   console.log("RUNNING: " + cmd)
   result = execSync(cmd);
 
