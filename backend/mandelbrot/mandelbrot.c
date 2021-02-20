@@ -88,8 +88,8 @@ int main(int argc, char *argv[])
     if (createGnuplotScipt("contours.plt", NUM_CONTOUR_LEVELS) != NULL)
     {
         system("gnuplot < contours.plt");
-        system("ps2pdf contours.ps");
-        system("contours.pdf");
+        //system("ps2pdf contours.ps");
+        //system("contours.pdf");
     }
 }
 
@@ -202,9 +202,8 @@ FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels)
     //fprintf(fp, "set palette rgbformulae 33,13,10\n");
     fprintf(fp, "\n");
     fprintf(fp, "set size ratio -1\n");
-    fprintf(fp, "set term post color\n");
-    fprintf(fp, "set output 'contours.ps'\n");
-    fprintf(fp, "#set terminal post size 1024,768\n");
+    fprintf(fp, "set terminal png size 1024,768\n");
+    fprintf(fp, "set output 'contours.png'\n");
     fprintf(fp, "splot 'contours.csv' u 1:2:3 w image\n");
     fclose(fp);
 
