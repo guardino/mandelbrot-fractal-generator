@@ -38,6 +38,7 @@ exports.createPost = (req, res, next) => {
 
 exports.updatePost = (req, res, next) => {
   imagePath = generateMandelbrot(req);
+  deleteImage(req);
 
   const post = new Post({
     _id: req.body.id,
@@ -108,6 +109,8 @@ exports.getPost = (req, res, next) => {
 };
 
 exports.deletePost = (req, res, next) => {
+  deleteImage(req);
+
   Post.deleteOne({ _id: req.params.id, creator: req.userData.userId })
     .then(result => {
       console.log(result);
@@ -123,6 +126,27 @@ exports.deletePost = (req, res, next) => {
       });
     });
 };
+
+
+function deleteImage(req) {
+  Post.findById(req.params.id)
+    .then(post => {
+      if (post) {
+        const url = req.protocol + "://" + req.get("host");
+        const imageUrl = post.imagePath;
+        imagePath = imageUrl.replace(url + "/","");
+        imagePath = path.join(__dirname, "../") + imagePath;
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
+      } else {
+        console.log("Post not found during image deletion!");
+      }
+    })
+    .catch(error => {
+      console.log("Fetching post failed during image deletion!");
+    });
+}
 
 function generateMandelbrot(req) {
   const mandelbrot_exe = isWin ? "mandelbrot.exe" : "./mandelbrot";
