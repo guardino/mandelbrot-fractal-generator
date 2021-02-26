@@ -50,7 +50,9 @@ export class CanvasComponent implements AfterViewInit {
         let y = sy - canvasTop;
         let w = e.clientX - canvasLeft - x;
         let h = e.clientY - canvasTop - y;
-        context.setLineDash([6]);
+        //context.setLineDash([6]);
+        context.lineWidth = 3;
+        context.strokeStyle = "white";
         context.strokeRect(x, y, w, h);
       };
     }
