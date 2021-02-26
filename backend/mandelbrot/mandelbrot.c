@@ -202,6 +202,10 @@ FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels)
     //fprintf(fp, "set palette rgbformulae 33,13,10\n");
     fprintf(fp, "\n");
     fprintf(fp, "set size ratio -1\n");
+    fprintf(fp, "set lmargin at screen 0\n");
+    fprintf(fp, "set rmargin at screen 1\n");
+    fprintf(fp, "set tmargin at screen 0\n");
+    fprintf(fp, "set bmargin at screen 1\n");
     fprintf(fp, "set terminal png size 1024,768\n");
     fprintf(fp, "set output 'contours.png'\n");
     fprintf(fp, "splot 'contours.csv' u 1:2:3 w image\n");
