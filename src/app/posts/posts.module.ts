@@ -5,10 +5,11 @@ import { RouterModule } from "@angular/router";
 
 import { PostCreateComponent } from "./post-create/post-create.component";
 import { PostListComponent } from "./post-list/post-list.component";
+import { CanvasComponent } from "./canvas/canvas.component";
 import { AngularMaterialModule } from "../angular-material.module";
 
 @NgModule({
-  declarations: [PostCreateComponent, PostListComponent],
+  declarations: [PostCreateComponent, PostListComponent, CanvasComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,

@@ -23,6 +23,11 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   private postId: string;
   private authStatusSub: Subscription;
 
+  private xMinInit;
+  private xMaxInit;
+  private yMinInit;
+  private yMaxInit;
+
   constructor(
     public postsService: PostsService,
     public route: ActivatedRoute,
@@ -68,6 +73,10 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             yMin: this.post.yMin,
             yMax: this.post.yMax
           });
+          this.xMinInit = Number(this.post.xMin);
+          this.xMaxInit = Number(this.post.xMax);
+          this.yMinInit = Number(this.post.yMin);
+          this.yMaxInit = Number(this.post.yMax);
         });
       } else {
         this.mode = "create";
@@ -106,5 +115,24 @@ export class PostCreateComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.authStatusSub.unsubscribe();
+  }
+
+  getRange($event) {
+    const nPx = 1024;
+    const nPy = 768;
+    const range = $event;
+    let deltaX = (this.xMaxInit - this.xMinInit) / nPx;
+    let deltaY = (this.yMaxInit - this.yMinInit) / nPy;
+    let xMin = this.xMinInit + range[0] * deltaX;
+    let xMax = this.xMinInit + range[2] * deltaX;
+    let yMin = this.yMaxInit - range[3] * deltaY;
+    let yMax = this.yMaxInit - range[1] * deltaY;
+    this.form.setValue({
+      title: this.form.value.title,
+      xMin: xMin,
+      xMax: xMax,
+      yMin: yMin,
+      yMax: yMax
+    });
   }
 }

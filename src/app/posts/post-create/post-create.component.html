@@ -5,6 +5,9 @@
       <input matInput type="text" formControlName="title" placeholder="Fractal Title">
       <mat-error *ngIf="form.get('title').invalid">Please enter a fractal title.</mat-error>
     </mat-form-field>
+    <div class="post-image" *ngIf="post">
+      <app-canvas-image [imageUrl]="post.imagePath" (messageEvent)="getRange($event)"></app-canvas-image>
+    </div>
     <mat-form-field>
       <input matInput rows="4" formControlName="xMin" placeholder="x_min">
       <mat-error *ngIf="form.get('xMin').invalid">Please enter x_min.</mat-error>
