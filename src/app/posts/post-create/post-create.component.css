@@ -24,7 +24,3 @@ input[type="file"] {
   width: 100%;
 }
 
-.post-image app-canvas-image {
-  width: 100%;
-  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-}
