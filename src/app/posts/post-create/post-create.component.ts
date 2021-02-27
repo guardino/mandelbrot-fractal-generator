@@ -81,6 +81,13 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       } else {
         this.mode = "create";
         this.postId = null;
+        this.form.setValue({
+          title: "",
+          xMin: -2.5,
+          xMax: 1.0,
+          yMin: -1.3,
+          yMax: 1.3
+        });
       }
     });
   }
