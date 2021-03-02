@@ -57,7 +57,7 @@ export class CanvasComponent implements AfterViewInit {
         w = w * base_image.width  / (canvasRight - canvasLeft);
         y = y * base_image.height / (canvasBottom - canvasTop);
         h = h * base_image.height / (canvasBottom - canvasTop);
-        //context.setLineDash([6]);
+        context.setLineDash([1, 1]);
         context.lineWidth = 3;
         context.strokeStyle = "white";
         context.strokeRect(x, y, w, h);
@@ -81,7 +81,7 @@ export class CanvasComponent implements AfterViewInit {
     w = w * base_image.width  / (canvasRight - canvasLeft);
     y = y * base_image.height / (canvasBottom - canvasTop);
     h = h * base_image.height / (canvasBottom - canvasTop);
-    this.myCanvas.nativeElement.getContext("2d").setLineDash([6]);
+    this.myCanvas.nativeElement.getContext("2d").setLineDash([]);
     this.myCanvas.nativeElement.getContext("2d").strokeRect(x, y, w, h);
 
     this.drag=false;
