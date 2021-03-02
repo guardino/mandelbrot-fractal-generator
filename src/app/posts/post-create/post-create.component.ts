@@ -51,7 +51,14 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     });
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has("postId")) {
-        this.mode = "edit";
+        if (paramMap.has("clone")) {
+          this.mode = "create";
+        }
+        else
+        {
+          this.mode = "edit";
+        }
+
         this.postId = paramMap.get("postId");
         this.isLoading = true;
         this.postsService.getPost(this.postId).subscribe(postData => {

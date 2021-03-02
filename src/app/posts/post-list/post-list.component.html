@@ -10,6 +10,7 @@
     <p>Mandelbrot set for x: ({{ post.xMin }}, {{ post.xMax }}) and y: ({{ post.yMin }}, {{ post.yMax }})</p>
     <mat-action-row *ngIf="userIsAuthenticated && userId === post.creator">
       <a mat-button color="primary" [routerLink]="['/edit', post.id]">EDIT</a>
+      <a mat-button color="success" [routerLink]="['/clone', post.id, 'true']">CLONE</a>
       <button mat-button color="warn" (click)="onDelete(post.id)">DELETE</button>
     </mat-action-row>
   </mat-expansion-panel>
