@@ -11,6 +11,12 @@ mat-paginator {
   margin-top: 1rem;
 }
 
+.post-range {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  color: gray;
+}
+
 .info-text {
   text-align: center;
 }
@@ -25,5 +31,5 @@ mat-paginator {
 }
 
 .mat-success {
-    color: #31b404;
+  color: #31b404;
 }

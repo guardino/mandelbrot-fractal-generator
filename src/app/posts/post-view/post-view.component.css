@@ -1,5 +1,14 @@
+:host {
+  display: block;
+  margin-top: 1rem;
+}
+
 mat-spinner {
   margin: auto;
+}
+
+mat-action-row {
+  float: right;
 }
 
 .post-title {
@@ -29,4 +38,3 @@ mat-spinner {
 .mat-success {
   color: #31b404;
 }
-
