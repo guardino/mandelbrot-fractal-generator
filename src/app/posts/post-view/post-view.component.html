@@ -1,0 +1,24 @@
+<mat-card>
+  <mat-spinner *ngIf="isLoading"></mat-spinner>
+  <div *ngIf="!isLoading">
+    <h2 class="post-title">
+      {{ post.title }}
+    </h2>
+    <div class="post-image">
+      <img [src]="post.imagePath" [alt]="post.title">
+    </div>
+    <div class="post-range">
+      <p>
+        x: ({{ post.xMin }}, {{ post.xMax }})
+      </p>
+      <p>
+        y: ({{ post.yMin }}, {{ post.yMax }})
+      </p>
+    </div>
+    <mat-action-row>
+      <a mat-button color="primary" [routerLink]="['/edit', post.id]">EDIT</a>
+      <a mat-button color="success" [routerLink]="['/clone', post.id, 'true']">CLONE</a>
+      <button mat-button color="warn" (click)="onDelete(post.id)">DELETE</button>
+    </mat-action-row>
+  </div>
+</mat-card>

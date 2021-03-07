@@ -1,0 +1,32 @@
+mat-spinner {
+  margin: auto;
+}
+
+.post-title {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.post-range {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  color: gray;
+}
+
+.info-text {
+  text-align: center;
+}
+
+.post-image {
+  width: 100%;
+}
+
+.post-image img {
+  width: 100%;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+.mat-success {
+  color: #31b404;
+}
+
