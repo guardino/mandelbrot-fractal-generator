@@ -38,14 +38,14 @@ export class CanvasComponent implements AfterViewInit {
       let sx = this.startX;
       let sy = this.startY;
 
-      let canvasTop = this.myCanvas.nativeElement.getBoundingClientRect().top;
+      let canvasTop    = this.myCanvas.nativeElement.getBoundingClientRect().top;
       let canvasBottom = this.myCanvas.nativeElement.getBoundingClientRect().bottom;
-      let canvasLeft = this.myCanvas.nativeElement.getBoundingClientRect().left;
-      let canvasRight = this.myCanvas.nativeElement.getBoundingClientRect().right;
+      let canvasLeft   = this.myCanvas.nativeElement.getBoundingClientRect().left;
+      let canvasRight  = this.myCanvas.nativeElement.getBoundingClientRect().right;
 
       base_image.onload = function () {
         context.canvas.height = base_image.height;
-        context.canvas.width = base_image.width;
+        context.canvas.width  = base_image.width;
         context.drawImage(base_image, 0, 0);
 
         //draw rectangle on canvas
@@ -68,15 +68,15 @@ export class CanvasComponent implements AfterViewInit {
   muEvent(e) {
     let base_image = new Image();
     base_image.src = this.imageUrl;
-    let canvasTop = this.myCanvas.nativeElement.getBoundingClientRect().top;
+    let canvasTop    = this.myCanvas.nativeElement.getBoundingClientRect().top;
     let canvasBottom = this.myCanvas.nativeElement.getBoundingClientRect().bottom;
-    let canvasLeft = this.myCanvas.nativeElement.getBoundingClientRect().left;
-    let canvasRight = this.myCanvas.nativeElement.getBoundingClientRect().right;
+    let canvasLeft   = this.myCanvas.nativeElement.getBoundingClientRect().left;
+    let canvasRight  = this.myCanvas.nativeElement.getBoundingClientRect().right;
     //draw final rectangle on canvas
     let x = this.startX - this.myCanvas.nativeElement.getBoundingClientRect().left;
-    let y = this.startY- this.myCanvas.nativeElement.getBoundingClientRect().top;
-    let w = e.clientX -this.myCanvas.nativeElement.getBoundingClientRect().left - x;
-    let h = e.clientY -this.myCanvas.nativeElement.getBoundingClientRect().top - y;
+    let y = this.startY - this.myCanvas.nativeElement.getBoundingClientRect().top;
+    let w = e.clientX   - this.myCanvas.nativeElement.getBoundingClientRect().left - x;
+    let h = e.clientY   - this.myCanvas.nativeElement.getBoundingClientRect().top - y;
     x = x * base_image.width  / (canvasRight - canvasLeft);
     w = w * base_image.width  / (canvasRight - canvasLeft);
     y = y * base_image.height / (canvasBottom - canvasTop);
@@ -100,8 +100,8 @@ export class CanvasComponent implements AfterViewInit {
     base_image.src = this.imageUrl;
     let context: CanvasRenderingContext2D = this.myCanvas.nativeElement.getContext("2d");
     base_image.onload = function(){
-      context.canvas.height=base_image.height;
-      context.canvas.width=base_image.width;
+      context.canvas.height = base_image.height;
+      context.canvas.width  = base_image.width;
       context.drawImage(base_image, 0, 0);
     }
   }
