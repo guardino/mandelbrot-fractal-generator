@@ -141,7 +141,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     let startX;
     let startY;
     const ratio = (this.xMaxInit - this.xMinInit) / (this.yMaxInit - this.yMinInit);
-    if (ratio < 1) {
+    if (ratio < nPx / nPy) {
       vPx = ratio * nPy;
       vPy = nPy;
       startX = 0.5 * (nPx - vPx);
