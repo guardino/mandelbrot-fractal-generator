@@ -135,12 +135,31 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     const nPx = 1024;
     const nPy = 768;
     const range = $event;
-    let deltaX = (this.xMaxInit - this.xMinInit) / nPx;
-    let deltaY = (this.yMaxInit - this.yMinInit) / nPy;
-    let xMin = this.xMinInit + range[0] * deltaX;
-    let xMax = this.xMinInit + range[2] * deltaX;
-    let yMin = this.yMaxInit - range[3] * deltaY;
-    let yMax = this.yMaxInit - range[1] * deltaY;
+
+    let vPx;
+    let vPy;
+    let startX;
+    let startY;
+    const ratio = (this.xMaxInit - this.xMinInit) / (this.yMaxInit - this.yMinInit);
+    if (ratio < 1) {
+      vPx = ratio * nPy;
+      vPy = nPy;
+      startX = 0.5 * (nPx - vPx);
+      startY = 0;
+    }
+    else {
+      vPx = nPx;
+      vPy = nPx / ratio;
+      startX = 0;
+      startY = 0.5 * (nPy - vPy);
+    }
+
+    let deltaX = (this.xMaxInit - this.xMinInit) / vPx;
+    let deltaY = (this.yMaxInit - this.yMinInit) / vPy;
+    let xMin = this.xMinInit + (range[0] - startX) * deltaX;
+    let xMax = this.xMinInit + (range[2] - startX) * deltaX;
+    let yMin = this.yMaxInit - (range[3] - startY) * deltaY;
+    let yMax = this.yMaxInit - (range[1] - startY) * deltaY;
     this.form.setValue({
       title: this.form.value.title,
       xMin: xMin,
