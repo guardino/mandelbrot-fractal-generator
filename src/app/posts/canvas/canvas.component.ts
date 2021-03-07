@@ -90,7 +90,7 @@ export class CanvasComponent implements AfterViewInit {
     let b = h > 0 ? y : y + h;
     let c = w > 0 ? x + w : x;
     let d = h > 0 ? y + h : y;
-    let range: number[] = [a, b, c, d];
+    let range: number[] = [a, b, c, d, base_image.width, base_image.height];
     this.messageEvent.emit(range);
   }
 

@@ -132,9 +132,9 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   }
 
   getRange($event) {
-    const nPx = 1024;
-    const nPy = 768;
     const range = $event;
+    const nPx = range[4];
+    const nPy = range[5];
 
     let vPx;
     let vPy;
