@@ -25,6 +25,7 @@ export class PostListComponent implements OnInit, OnDestroy {
   pageSizeOptions = [1, 2, 5, 10];
   userIsAuthenticated = false;
   userId: string;
+  showUserOnlyPosts: boolean = false;
   private postsSub: Subscription;
   private authStatusSub: Subscription;
 
@@ -35,7 +36,7 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isLoading = true;
-    this.postsService.getPosts(this.postsPerPage, this.currentPage);
+    this.postsService.getPosts(this.postsPerPage, this.currentPage, false);
     this.userId = this.authService.getUserId();
     this.postsSub = this.postsService
       .getPostUpdateListener()
@@ -57,13 +58,18 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.currentPage = pageData.pageIndex + 1;
     this.postsPerPage = pageData.pageSize;
-    this.postsService.getPosts(this.postsPerPage, this.currentPage);
+    this.postsService.getPosts(this.postsPerPage, this.currentPage, this.showUserOnlyPosts);
+  }
+
+  setUserOnlyPosts(showUserOnlyPosts: boolean) {
+    this.showUserOnlyPosts = showUserOnlyPosts;
+    this.postsService.getPosts(this.postsPerPage, this.currentPage, this.showUserOnlyPosts);
   }
 
   onDelete(postId: string) {
     this.isLoading = true;
     this.postsService.deletePost(postId).subscribe(() => {
-      this.postsService.getPosts(this.postsPerPage, this.currentPage);
+      this.postsService.getPosts(this.postsPerPage, this.currentPage, this.showUserOnlyPosts);
     }, () => {
       this.isLoading = false;
     });

@@ -16,11 +16,12 @@ export class PostsService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  getPosts(postsPerPage: number, currentPage: number) {
+  getPosts(postsPerPage: number, currentPage: number, showUserOnlyPosts: boolean) {
+    const route = showUserOnlyPosts ? "user" : "";
     const queryParams = `?pagesize=${postsPerPage}&page=${currentPage}`;
     this.http
       .get<{ message: string; posts: any; maxPosts: number }>(
-        BACKEND_URL + queryParams
+        BACKEND_URL + route + queryParams
       )
       .pipe(
         map(postData => {
