@@ -142,7 +142,7 @@ FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sr
     {
         for (int i = 0; i < screen.nPx; i++)
         {
-            fprintf(fp, "%f, %f, %d\n", cpoints->x0, cpoints->y0, (cpoints->iter)%NUM_CONTOUR_LEVELS);
+            fprintf(fp, "%.17g, %.17g, %d\n", cpoints->x0, cpoints->y0, (cpoints->iter)%NUM_CONTOUR_LEVELS);
             cpoints++;
         }
 
