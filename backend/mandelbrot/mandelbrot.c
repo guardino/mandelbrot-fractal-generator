@@ -10,8 +10,8 @@
 #include <stdlib.h>     /* atoi */
 #include <string.h>     /* strlen */
 
-#define NUM_X_PIXELS 1024
-#define NUM_Y_PIXELS 768
+#define NUM_X_PIXELS 2048
+#define NUM_Y_PIXELS 1536
 #define NUM_CONTOUR_LEVELS 40
 #define MAX_ITERATIONS 1000
 
@@ -31,7 +31,7 @@ struct sregion {
 struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen);
 FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sregion screen);
 FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struct sregion screen, char symbol);
-FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels);
+FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels, unsigned int nPx, unsigned int nPy);
 
 int main(int argc, char *argv[])
 {
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
             }
     if (argc !=0 && argc != 4) {
         printf("Usage: mandelbrot [-s size] [x_min x_max y_min y_max]\n");
-        printf("Example: mandelbrot -s 1024 -2.5 1.0 -1.3 1.3\n");
+        printf("Example: mandelbrot -s 2048 -2.5 1.0 -1.3 1.3\n");
         return 1;
     }
 
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     printPointsInSet("mandelbrot.txt", cpoints, screen, '*');
     free(cpoints);
 
-    if (createGnuplotScipt("contours.plt", NUM_CONTOUR_LEVELS) != NULL)
+    if (createGnuplotScipt("contours.plt", NUM_CONTOUR_LEVELS, nPx, nPy) != NULL)
     {
         system("gnuplot < contours.plt");
         //system("ps2pdf contours.ps");
@@ -174,7 +174,7 @@ FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struc
     fclose(fp);
 }
 
-FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels)
+FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels, unsigned int nPx, unsigned int nPy)
 {
     FILE *fp;
     if ((fp = fopen(fileName, "w")) == NULL) {
@@ -206,7 +206,7 @@ FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels)
     fprintf(fp, "set rmargin at screen 1\n");
     fprintf(fp, "set tmargin at screen 0\n");
     fprintf(fp, "set bmargin at screen 1\n");
-    fprintf(fp, "set terminal png size 1024,768\n");
+    fprintf(fp, "set terminal png size %d,%d\n", nPx, nPy);
     fprintf(fp, "set output 'contours.png'\n");
     fprintf(fp, "splot 'contours.csv' u 1:2:3 w image\n");
     fclose(fp);
