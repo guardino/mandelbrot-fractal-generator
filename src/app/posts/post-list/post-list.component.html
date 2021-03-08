@@ -1,5 +1,5 @@
 <mat-spinner *ngIf="isLoading"></mat-spinner>
-<section class="post-user-only-section" *ngIf="userIsAuthenticated && posts.length > 0 && !isLoading">
+<section class="post-user-only-section" *ngIf="userIsAuthenticated && !isLoading">
   <mat-checkbox class="post-user-only-margin" (change)="setUserOnlyPosts($event.checked)">Show user fractals only</mat-checkbox>
 </section>
 <mat-accordion multi="true" *ngIf="posts.length > 0 && !isLoading">
