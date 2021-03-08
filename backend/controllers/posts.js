@@ -150,7 +150,7 @@ function deleteImage(req) {
 
 function generateMandelbrot(req) {
   const mandelbrot_exe = isWin ? "mandelbrot.exe" : "./mandelbrot";
-  const cmd = "cd " + path.join(__dirname, "../mandelbrot") + " && " + mandelbrot_exe + " -s 1024 " +  req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
+  const cmd = "cd " + path.join(__dirname, "../mandelbrot") + " && " + mandelbrot_exe + " " +  req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
   console.log("RUNNING: " + cmd)
   result = execSync(cmd);
 
