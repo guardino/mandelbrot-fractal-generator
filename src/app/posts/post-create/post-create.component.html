@@ -24,6 +24,10 @@
       <input matInput rows="4" formControlName="yMax" placeholder="y_max">
       <mat-error *ngIf="form.get('yMax').invalid">Please enter y_max.</mat-error>
     </mat-form-field>
+    <mat-form-field>
+      <input matInput rows="4" formControlName="contours" placeholder="contours">
+      <mat-error *ngIf="form.get('contours').invalid">Please enter contour levels.</mat-error>
+    </mat-form-field>
     <button mat-raised-button color="accent" type="submit">Create Fractal</button>
   </form>
 </mat-card>

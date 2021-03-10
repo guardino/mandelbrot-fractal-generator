@@ -6,6 +6,7 @@ const postSchema = mongoose.Schema({
   xMax: { type: String, required: true },
   yMin: { type: String, required: true },
   yMax: { type: String, required: true },
+  contours: { type: String, required: true },
   imagePath: { type: String, required: true },
   creator: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
 });

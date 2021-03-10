@@ -5,6 +5,7 @@ export interface Post {
   xMax: string;
   yMin: string;
   yMax: string;
+  contours: string;
   imagePath: string;
   creator: string;
 }

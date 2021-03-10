@@ -33,6 +33,7 @@ export class PostsService {
                 xMax: post.xMax,
                 yMin: post.yMin,
                 yMax: post.yMax,
+                contours: post.contours,
                 id: post._id,
                 imagePath: post.imagePath,
                 creator: post.creator
@@ -63,18 +64,20 @@ export class PostsService {
       xMax: string;
       yMin: string;
       yMax: string;
+      contours: string;
       imagePath: string;
       creator: string;
     }>(BACKEND_URL + id);
   }
 
-  addPost(title: string, xMin: string, xMax: string, yMin: string, yMax: string, image: File) {
+  addPost(title: string, xMin: string, xMax: string, yMin: string, yMax: string, contours: string, image: File) {
     const postData = new FormData();
     postData.append("title", title);
     postData.append("xMin", xMin);
     postData.append("xMax", xMax);
     postData.append("yMin", yMin);
     postData.append("yMax", yMax);
+    postData.append("contours", contours);
     postData.append("image", image);
     this.http
       .post<{ message: string; post: Post }>(
@@ -86,7 +89,7 @@ export class PostsService {
       });
   }
 
-  updatePost(id: string, title: string, xMin: string, xMax: string, yMin: string, yMax: string, image: File | string) {
+  updatePost(id: string, title: string, xMin: string, xMax: string, yMin: string, yMax: string, contours: string, image: File | string) {
     let postData: Post | FormData;
     if (typeof image === "object") {
       postData = new FormData();
@@ -96,6 +99,7 @@ export class PostsService {
       postData.append("xMax", xMax);
       postData.append("yMin", yMin);
       postData.append("yMax", yMax);
+      postData.append("contours", contours);
       postData.append("image", image);
     } else {
       postData = {
@@ -105,6 +109,7 @@ export class PostsService {
         xMax: xMax,
         yMin: yMin,
         yMax: yMax,
+        contours: contours,
         imagePath: image,
         creator: null
       };

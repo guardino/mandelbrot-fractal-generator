@@ -48,6 +48,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       xMax: new FormControl(null, { validators: [Validators.required] }),
       yMin: new FormControl(null, { validators: [Validators.required] }),
       yMax: new FormControl(null, { validators: [Validators.required] }),
+      contours : new FormControl(null, { validators: [Validators.required] })
     });
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has("postId")) {
@@ -70,6 +71,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             xMax: postData.xMax,
             yMin: postData.yMin,
             yMax: postData.yMax,
+            contours: postData.contours,
             imagePath: postData.imagePath,
             creator: postData.creator
           };
@@ -78,7 +80,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             xMin: this.post.xMin,
             xMax: this.post.xMax,
             yMin: this.post.yMin,
-            yMax: this.post.yMax
+            yMax: this.post.yMax,
+            contours: this.post.contours
           });
           this.xMinInit = Number(this.post.xMin);
           this.xMaxInit = Number(this.post.xMax);
@@ -93,7 +96,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
           xMin: -2.5,
           xMax: 1.0,
           yMin: -1.3,
-          yMax: 1.3
+          yMax: 1.3,
+          contours: 40
         });
       }
     });
@@ -111,6 +115,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.form.value.xMax,
         this.form.value.yMin,
         this.form.value.yMax,
+        this.form.value.contours,
         null
       );
     } else {
@@ -121,6 +126,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.form.value.xMax,
         this.form.value.yMin,
         this.form.value.yMax,
+        this.form.value.contours,
         null
       );
     }
@@ -165,7 +171,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       xMin: xMin,
       xMax: xMax,
       yMin: yMin,
-      yMax: yMax
+      yMax: yMax,
+      contours: this.form.value.contours
     });
   }
 }
