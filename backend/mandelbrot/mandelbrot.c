@@ -10,8 +10,8 @@
 #include <stdlib.h>     /* atoi */
 #include <string.h>     /* strlen */
 
-#define CONTOUR_LEVELS 40
-#define MAX_ITERATIONS 1000
+#define CONTOUR_LEVELS 64
+#define MAX_ITERATIONS 1024
 #define MAX_PIXELS 2048
 
 struct cpoint {
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
     if (argc !=0 && argc != 4) {
         printf("Usage: mandelbrot [-c contours] [-s size] [x_min x_max y_min y_max]\n");
-        printf("Example: mandelbrot -c 40 -s 2048 -2.5 1.0 -1.3 1.3\n");
+        printf("Example: mandelbrot -c 64 -s 2048 -2.5 1.0 -1.3 1.3\n");
         return 1;
     }
 
