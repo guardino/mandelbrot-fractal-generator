@@ -28,25 +28,34 @@ struct sregion {
 };
 
 struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen);
-FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sregion screen);
+FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int contourLevels);
 FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struct sregion screen, char symbol);
-FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels, unsigned int width, unsigned int height);
+FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned int width, unsigned int height);
 
 int main(int argc, char *argv[])
 {
     unsigned int maxPixels = MAX_PIXELS;
+    unsigned int contourLevels = CONTOUR_LEVELS;
     unsigned int nPx;
     unsigned int nPy;
     double xMin = -2.5, xMax = 1.0, yMin = -1.3, yMax = 1.3;
 
     int c;
+    char **contours;
     char **size;
-    while (--argc > 0 && (*++argv)[0] == '-')
-        while (c = *++argv[0])
+    while (--argc > 4 && (*++argv)[0] == '-')
+        while ((c = *++argv[0]) && !isdigit(c))
             switch (c) {
+            case 'c':
+                contours = argv;
+                contourLevels = atoi(*++contours);
+                ++argv;
+                --argc;
+                break;
             case 's':
                 size = argv;
                 maxPixels = atoi(*++size);
+                ++argv;
                 --argc;
                 break;
             default:
@@ -54,9 +63,10 @@ int main(int argc, char *argv[])
                 argc = -1;
                 break;
             }
+
     if (argc !=0 && argc != 4) {
-        printf("Usage: mandelbrot [-s size] [x_min x_max y_min y_max]\n");
-        printf("Example: mandelbrot -s 2048 -2.5 1.0 -1.3 1.3\n");
+        printf("Usage: mandelbrot [-c contours] [-s size] [x_min x_max y_min y_max]\n");
+        printf("Example: mandelbrot -c 40 -s 2048 -2.5 1.0 -1.3 1.3\n");
         return 1;
     }
 
@@ -91,11 +101,11 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-    outputPoints("contours.csv", cpoints, screen);
+    outputPoints("contours.csv", cpoints, screen, contourLevels);
     printPointsInSet("mandelbrot.txt", cpoints, screen, '*');
     free(cpoints);
 
-    if (createGnuplotScipt("contours.plt", CONTOUR_LEVELS, nPx, nPy) != NULL)
+    if (createGnuplotScipt("contours.plt", contourLevels, nPx, nPy) != NULL)
     {
         system("gnuplot < contours.plt");
         //system("ps2pdf contours.ps");
@@ -140,7 +150,7 @@ struct cpoint *scanPoints(const struct cregion domain, const struct sregion scre
     return cpoints;
 }
 
-FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sregion screen)
+FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int contourLevels)
 {
     FILE *fp;
     if ((fp = fopen(fileName, "w")) == NULL) {
@@ -152,7 +162,7 @@ FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sr
     {
         for (int i = 0; i < screen.nPx; i++)
         {
-            fprintf(fp, "%.17g, %.17g, %d\n", cpoints->x0, cpoints->y0, (cpoints->iter)%CONTOUR_LEVELS);
+            fprintf(fp, "%.17g, %.17g, %d\n", cpoints->x0, cpoints->y0, (cpoints->iter)%contourLevels);
             cpoints++;
         }
 
@@ -184,7 +194,7 @@ FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struc
     fclose(fp);
 }
 
-FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels, unsigned int width, unsigned int height)
+FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned int width, unsigned int height)
 {
     FILE *fp;
     if ((fp = fopen(fileName, "w")) == NULL) {
@@ -206,7 +216,7 @@ FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels, unsigned
     fprintf(fp, "\n");
     fprintf(fp, "set contour base\n");
     fprintf(fp, "set view map\n");
-    fprintf(fp, "set cntrparam levels %d\n", numContourLevels);
+    fprintf(fp, "set cntrparam levels %d\n", contourLevels);
     fprintf(fp, "set isosample 250, 250\n");
     fprintf(fp, "set palette rgbformulae 7,5,15\n");
     //fprintf(fp, "set palette rgbformulae 33,13,10\n");
