@@ -10,9 +10,9 @@
 #include <stdlib.h>     /* atoi */
 #include <string.h>     /* strlen */
 
-#define MAX_PIXELS 2048
-#define NUM_CONTOUR_LEVELS 40
+#define CONTOUR_LEVELS 40
 #define MAX_ITERATIONS 1000
+#define MAX_PIXELS 2048
 
 struct cpoint {
     double x0, y0;
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     printPointsInSet("mandelbrot.txt", cpoints, screen, '*');
     free(cpoints);
 
-    if (createGnuplotScipt("contours.plt", NUM_CONTOUR_LEVELS, nPx, nPy) != NULL)
+    if (createGnuplotScipt("contours.plt", CONTOUR_LEVELS, nPx, nPy) != NULL)
     {
         system("gnuplot < contours.plt");
         //system("ps2pdf contours.ps");
@@ -152,7 +152,7 @@ FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sr
     {
         for (int i = 0; i < screen.nPx; i++)
         {
-            fprintf(fp, "%.17g, %.17g, %d\n", cpoints->x0, cpoints->y0, (cpoints->iter)%NUM_CONTOUR_LEVELS);
+            fprintf(fp, "%.17g, %.17g, %d\n", cpoints->x0, cpoints->y0, (cpoints->iter)%CONTOUR_LEVELS);
             cpoints++;
         }
 
