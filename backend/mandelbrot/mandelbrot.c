@@ -10,8 +10,7 @@
 #include <stdlib.h>     /* atoi */
 #include <string.h>     /* strlen */
 
-#define NUM_X_PIXELS 2048
-#define NUM_Y_PIXELS 1536
+#define MAX_PIXELS 2048
 #define NUM_CONTOUR_LEVELS 40
 #define MAX_ITERATIONS 1000
 
@@ -35,8 +34,9 @@ FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels, unsigned
 
 int main(int argc, char *argv[])
 {
-    unsigned int nPx = NUM_X_PIXELS;
-    unsigned int nPy = NUM_Y_PIXELS;
+    unsigned int maxPixels = MAX_PIXELS;
+    unsigned int nPx;
+    unsigned int nPy;
     double xMin = -2.5, xMax = 1.0, yMin = -1.3, yMax = 1.3;
 
     int c;
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
             switch (c) {
             case 's':
                 size = argv;
-                nPx = atoi(*++size);
+                maxPixels = atoi(*++size);
                 --argc;
                 break;
             default:
@@ -68,7 +68,17 @@ int main(int argc, char *argv[])
         yMax = atof(*++argv);
     }
 
-    nPy = (yMax - yMin) * nPx / (xMax - xMin);
+    if (yMax - yMin > xMax - xMin)
+    {
+        nPx = (xMax - xMin) * maxPixels / (yMax - yMin);
+        nPy = maxPixels;
+    }
+    else
+    {
+        nPx = maxPixels;
+        nPy = (yMax - yMin) * maxPixels / (xMax - xMin);
+    }
+
     struct cpoint A = { xMin, yMin, 0 };
     struct cpoint B = { xMax, yMax, 0 };
     struct cregion domain = { A, B };
