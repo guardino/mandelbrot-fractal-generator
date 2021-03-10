@@ -31,7 +31,7 @@ struct sregion {
 struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen);
 FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sregion screen);
 FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struct sregion screen, char symbol);
-FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels, unsigned int nPx, unsigned int nPy);
+FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels, unsigned int width, unsigned int height);
 
 int main(int argc, char *argv[])
 {
@@ -174,7 +174,7 @@ FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struc
     fclose(fp);
 }
 
-FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels, unsigned int nPx, unsigned int nPy)
+FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels, unsigned int width, unsigned int height)
 {
     FILE *fp;
     if ((fp = fopen(fileName, "w")) == NULL) {
@@ -206,7 +206,7 @@ FILE *createGnuplotScipt(char *fileName, unsigned int numContourLevels, unsigned
     fprintf(fp, "set rmargin at screen 1\n");
     fprintf(fp, "set tmargin at screen 0\n");
     fprintf(fp, "set bmargin at screen 1\n");
-    fprintf(fp, "set terminal png size %d,%d\n", nPx, nPy);
+    fprintf(fp, "set terminal png size %d,%d\n", width, height);
     fprintf(fp, "set output 'contours.png'\n");
     fprintf(fp, "splot 'contours.csv' u 1:2:3 w image\n");
     fclose(fp);
