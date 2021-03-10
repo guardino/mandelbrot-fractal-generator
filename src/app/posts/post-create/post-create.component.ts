@@ -19,6 +19,14 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   post: Post;
   isLoading = false;
   form: FormGroup;
+
+  contourList = [
+    { value: "32" },
+    { value: "64" },
+    { value: "128" },
+    { value: "256" }
+  ];
+
   private mode = "create";
   private postId: string;
   private authStatusSub: Subscription;
@@ -97,7 +105,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
           xMax: 1.0,
           yMin: -1.3,
           yMax: 1.3,
-          contours: 40
+          contours: 64
         });
       }
     });
