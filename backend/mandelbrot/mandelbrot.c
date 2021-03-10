@@ -41,21 +41,15 @@ int main(int argc, char *argv[])
     double xMin = -2.5, xMax = 1.0, yMin = -1.3, yMax = 1.3;
 
     int c;
-    char **contours;
-    char **size;
     while (--argc > 4 && (*++argv)[0] == '-')
         while ((c = *++argv[0]) && !isdigit(c))
             switch (c) {
             case 'c':
-                contours = argv;
-                contourLevels = atoi(*++contours);
-                ++argv;
+                contourLevels = atoi(*++argv);
                 --argc;
                 break;
             case 's':
-                size = argv;
-                maxPixels = atoi(*++size);
-                ++argv;
+                maxPixels = atoi(*++argv);
                 --argc;
                 break;
             default:
