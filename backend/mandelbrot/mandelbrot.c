@@ -11,6 +11,7 @@
 #include <string.h>     /* strlen */
 
 #define CONTOUR_LEVELS 64
+#define COLOR_THEME 2
 #define MAX_ITERATIONS 1024
 #define MAX_PIXELS 2048
 
@@ -30,12 +31,14 @@ struct sregion {
 struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen);
 FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int contourLevels);
 FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struct sregion screen, char symbol);
-FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned int width, unsigned int height);
+FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned int width, unsigned int height, unsigned int colorTheme);
+char *getRGBFormula(unsigned int colorTheme);
 
 int main(int argc, char *argv[])
 {
     unsigned int maxPixels = MAX_PIXELS;
     unsigned int contourLevels = CONTOUR_LEVELS;
+    unsigned int colorTheme = COLOR_THEME;
     unsigned int nPx;
     unsigned int nPy;
     double xMin = -2.5, xMax = 1.0, yMin = -1.3, yMax = 1.3;
@@ -52,6 +55,10 @@ int main(int argc, char *argv[])
                 maxPixels = atoi(*++argv);
                 --argc;
                 break;
+            case 't':
+                colorTheme = atoi(*++argv);
+                --argc;
+                break;
             default:
                 printf("mandelbrot: illegal option %c\n", c);
                 argc = -1;
@@ -59,8 +66,8 @@ int main(int argc, char *argv[])
             }
 
     if (argc !=0 && argc != 4) {
-        printf("Usage: mandelbrot [-c contours] [-s size] [x_min x_max y_min y_max]\n");
-        printf("Example: mandelbrot -c 64 -s 2048 -2.5 1.0 -1.3 1.3\n");
+        printf("Usage: mandelbrot [-c contours] [-s size] [-t theme] [x_min x_max y_min y_max]\n");
+        printf("Example: mandelbrot -c 64 -s 2048 -t 2 -2.5 1.0 -1.3 1.3\n");
         return 1;
     }
 
@@ -99,7 +106,7 @@ int main(int argc, char *argv[])
     printPointsInSet("mandelbrot.txt", cpoints, screen, '*');
     free(cpoints);
 
-    if (createGnuplotScipt("contours.plt", contourLevels, nPx, nPy) != NULL)
+    if (createGnuplotScipt("contours.plt", contourLevels, nPx, nPy, colorTheme) != NULL)
     {
         system("gnuplot < contours.plt");
         //system("ps2pdf contours.ps");
@@ -188,7 +195,7 @@ FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struc
     fclose(fp);
 }
 
-FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned int width, unsigned int height)
+FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned int width, unsigned int height, unsigned int colorTheme)
 {
     FILE *fp;
     if ((fp = fopen(fileName, "w")) == NULL) {
@@ -212,8 +219,7 @@ FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned in
     fprintf(fp, "set view map\n");
     fprintf(fp, "set cntrparam levels %d\n", contourLevels);
     fprintf(fp, "set isosample 250, 250\n");
-    fprintf(fp, "set palette rgbformulae 7,5,15\n");
-    //fprintf(fp, "set palette rgbformulae 33,13,10\n");
+    fprintf(fp, "set palette rgbformulae %s\n", getRGBFormula(colorTheme));
     fprintf(fp, "\n");
     fprintf(fp, "set size ratio -1\n");
     fprintf(fp, "set lmargin at screen 0\n");
@@ -227,3 +233,37 @@ FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned in
 
     return fp;
 }
+
+char *getRGBFormula(unsigned int colorTheme)
+{
+    char *colorCode;
+    switch (colorTheme) {
+        case 1:  // Candy
+            colorCode = "3,11,16";
+            break;
+        case 2:  // Cosmic
+            colorCode = "30,31,32";
+            break;
+        case 3:  // Fire
+            colorCode = "21,22,23";
+            break;
+        case 4:  // Ocean
+            colorCode = "23,28,3";
+            break;
+        case 5:  // Rainbow
+            colorCode = "22,13,-31";
+            break;
+        case 6:  // Violet
+            colorCode = "33,13,10";
+            break;
+        case 7:  // Volcano
+            colorCode = "7,5,15";
+            break;
+        default:
+            printf("mandelbrot: unknown color theme %d. Using default theme.\n", colorTheme);
+            colorCode = "7,5,15";
+            break;
+    }
+
+    return colorCode;
+} 
