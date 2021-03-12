@@ -30,6 +30,18 @@ mat-paginator {
   box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
 }
 
+.preview-image {
+  height: 3rem;
+}
+
+.preview-image img {
+  display: inline;
+  height: 90%;
+  float: none;
+  vertical-align: middle;
+  padding-right: 1rem;
+}
+
 .mat-success {
   color: #31b404;
 }
