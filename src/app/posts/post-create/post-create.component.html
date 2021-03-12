@@ -26,17 +26,17 @@
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Contour Levels</mat-label>
-      <mat-select formControlName="contours" placeholder="contours">
+      <mat-select formControlName="contours">
         <mat-option *ngFor="let contour of contourList" [value]="contour.value">
-          {{contour.value}}
+          {{ contour.value }}
         </mat-option>
       </mat-select>
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Color Theme</mat-label>
-      <mat-select formControlName="theme" placeholder="theme">
+      <mat-select formControlName="theme">
         <mat-option *ngFor="let theme of themes" [value]="theme.value">
-          {{theme.name}}
+          {{ theme.name }}
         </mat-option>
       </mat-select>
     </mat-form-field>
