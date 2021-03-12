@@ -27,6 +27,16 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     { value: "256" }
   ];
 
+  themes = [
+    { name: "Candy",   value: "1" },
+    { name: "Cosmic",  value: "2" },
+    { name: "Fire",    value: "3" },
+    { name: "Ocean",   value: "4" },
+    { name: "Rainbow", value: "5" },
+    { name: "Violet",  value: "6" },
+    { name: "Volcano", value: "7" }
+  ];
+
   private mode = "create";
   private postId: string;
   private authStatusSub: Subscription;
@@ -56,7 +66,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       xMax: new FormControl(null, { validators: [Validators.required] }),
       yMin: new FormControl(null, { validators: [Validators.required] }),
       yMax: new FormControl(null, { validators: [Validators.required] }),
-      contours : new FormControl(null, { validators: [Validators.required] })
+      contours : new FormControl(null, { validators: [Validators.required] }),
+      theme : new FormControl(null, { validators: [Validators.required] })
     });
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has("postId")) {
@@ -80,6 +91,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             yMin: postData.yMin,
             yMax: postData.yMax,
             contours: postData.contours,
+            theme: postData.theme,
             imagePath: postData.imagePath,
             creator: postData.creator
           };
@@ -89,7 +101,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             xMax: this.post.xMax,
             yMin: this.post.yMin,
             yMax: this.post.yMax,
-            contours: this.post.contours
+            contours: this.post.contours,
+            theme: this.post.theme
           });
           this.xMinInit = Number(this.post.xMin);
           this.xMaxInit = Number(this.post.xMax);
@@ -105,7 +118,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
           xMax: 1.0,
           yMin: -1.3,
           yMax: 1.3,
-          contours: 64
+          contours: 64,
+          theme: 2
         });
       }
     });
@@ -124,6 +138,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.form.value.yMin,
         this.form.value.yMax,
         this.form.value.contours,
+        this.form.value.theme,
         null
       );
     } else {
@@ -135,6 +150,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.form.value.yMin,
         this.form.value.yMax,
         this.form.value.contours,
+        this.form.value.theme,
         null
       );
     }
@@ -180,7 +196,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       xMax: xMax,
       yMin: yMin,
       yMax: yMax,
-      contours: this.form.value.contours
+      contours: this.form.value.contours,
+      theme: this.form.value.theme
     });
   }
 }

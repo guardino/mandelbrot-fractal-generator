@@ -16,6 +16,7 @@ exports.createPost = (req, res, next) => {
     yMin: req.body.yMin,
     yMax: req.body.yMax,
     contours: req.body.contours,
+    theme: req.body.theme,
     imagePath: imagePath,
     creator: req.userData.userId
   });
@@ -49,6 +50,7 @@ exports.updatePost = (req, res, next) => {
     yMin: req.body.yMin,
     yMax: req.body.yMax,
     contours: req.body.contours,
+    theme: req.body.theme,
     imagePath: imagePath,
     creator: req.userData.userId
   });
@@ -152,7 +154,7 @@ function deleteImage(req) {
 
 function generateMandelbrot(req) {
   const mandelbrot_exe = isWin ? "mandelbrot.exe" : "./mandelbrot";
-  const cmd = "cd " + path.join(__dirname, "../mandelbrot") + " && " + mandelbrot_exe + " -c " + req.body.contours + " -s 2048 " +  req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
+  const cmd = "cd " + path.join(__dirname, "../mandelbrot") + " && " + mandelbrot_exe + " -c " + req.body.contours + " -s 2048" + " -t " + req.body.theme + " " + req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
   console.log("RUNNING: " + cmd)
   result = execSync(cmd);
 

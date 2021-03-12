@@ -6,6 +6,7 @@ export interface Post {
   yMin: string;
   yMax: string;
   contours: string;
+  theme: string;
   imagePath: string;
   creator: string;
 }
