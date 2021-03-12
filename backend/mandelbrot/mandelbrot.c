@@ -96,7 +96,13 @@ int main(int argc, char *argv[])
     struct sregion screen = { nPx, nPy };
 
     struct cpoint *cpoints = scanPoints(domain, screen);
-    system("cmd.exe /c del /F/Q contours.* mandelbrot.txt");
+
+    #ifdef _WIN32
+        system("cmd.exe /c del /F/Q contours.* mandelbrot.txt > NUL 2>&1");
+    #else
+        system("rm -f contours.* mandelbrot.txt > /dev/null 2>&1");
+    #endif
+
     if (cpoints == NULL) {
         printf("mandelbrot: error in calculating points");
         return 2;
