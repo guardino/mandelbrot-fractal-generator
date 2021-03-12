@@ -238,25 +238,34 @@ char *getRGBFormula(unsigned int colorTheme)
 {
     char *colorCode;
     switch (colorTheme) {
-        case 1:  // Candy
+        case 1:  // Bubblegum
+            colorCode = "21,23,3";
+            break;
+        case 2:  // Candy
             colorCode = "3,11,16";
             break;
-        case 2:  // Cosmic
+        case 3:  // Cosmic
             colorCode = "30,31,32";
             break;
-        case 3:  // Fire
+        case 4:  // Fire
             colorCode = "21,22,23";
             break;
-        case 4:  // Ocean
-            colorCode = "23,28,3";
-            break;
-        case 5:  // Rainbow
-            colorCode = "22,13,-31";
-            break;
-        case 6:  // Violet
+        case 5:  // Floral
             colorCode = "33,13,10";
             break;
-        case 7:  // Volcano
+        case 6:  // Hot
+            colorCode = "34,35,36";
+            break;
+        case 7:  // Imperial
+            colorCode = "3,23,21";
+            break;
+        case 8:  // Ocean
+            colorCode = "23,28,3";
+            break;
+        case 9:  // Rainbow
+            colorCode = "22,13,-31";
+            break;
+        case 10:  // Volcano
             colorCode = "7,5,15";
             break;
         default:

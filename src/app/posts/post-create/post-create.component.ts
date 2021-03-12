@@ -28,13 +28,16 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   ];
 
   themes = [
-    { name: "Candy",   value: "1" },
-    { name: "Cosmic",  value: "2" },
-    { name: "Fire",    value: "3" },
-    { name: "Ocean",   value: "4" },
-    { name: "Rainbow", value: "5" },
-    { name: "Violet",  value: "6" },
-    { name: "Volcano", value: "7" }
+    { name: "Bubblegum", value:  "1" },
+    { name: "Candy",     value:  "2" },
+    { name: "Cosmic",    value:  "3" },
+    { name: "Fire",      value:  "4" },
+    { name: "Floral",    value:  "5" },
+    { name: "Hot",       value:  "6" },
+    { name: "Imperial",  value:  "7" },
+    { name: "Ocean",     value:  "8" },
+    { name: "Rainbow",   value:  "9" },
+    { name: "Volcano",   value: "10" }
   ];
 
   private mode = "create";
@@ -119,7 +122,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
           yMin: -1.3,
           yMax: 1.3,
           contours: this.contourList[1].value,
-          theme: this.themes[1].value
+          theme: this.themes[2].value
         });
       }
     });
