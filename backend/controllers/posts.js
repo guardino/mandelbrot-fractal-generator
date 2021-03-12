@@ -154,18 +154,23 @@ function deleteImage(req) {
 
 function generateMandelbrot(req) {
   const mandelbrot_exe = isWin ? "mandelbrot.exe" : "./mandelbrot";
-  const cmd = "cd " + path.join(__dirname, "../mandelbrot") + " && " + mandelbrot_exe + " -c " + req.body.contours + " -s 2048" + " -t " + req.body.theme + " " + req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
+
+  tempDir = getTempDir();
+  const cmd = "cd " + tempDir + " && " + path.join(__dirname, "../mandelbrot/") + mandelbrot_exe + " -c " + req.body.contours + " -s 2048" + " -t " + req.body.theme + " " + req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
   console.log("RUNNING: " + cmd)
   result = execSync(cmd);
 
   const imageFilename = Date.now() + ".png";
 
-  fs.rename(path.join(__dirname, "../mandelbrot/") + "contours.png", path.join(__dirname, "../images/") + imageFilename, function(err) {
-    if ( err ) console.log("ERROR: " + err);
-  });
+  fs.renameSync(tempDir + "/contours.png", path.join(__dirname, "../images/") + imageFilename);
+  fs.rmdirSync(tempDir, { recursive: true });
 
   const url = req.protocol + "://" + req.get("host");
   imagePath = url + "/images/" + imageFilename;
 
   return imagePath;
+}
+
+function getTempDir() {
+  return fs.mkdtempSync("temp-"); 
 }
