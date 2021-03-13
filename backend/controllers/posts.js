@@ -163,7 +163,8 @@ function generateMandelbrot(req) {
   const imageFilename = Date.now() + ".png";
 
   fs.renameSync(tempDir + "/contours.png", path.join(__dirname, "../images/") + imageFilename);
-  fs.rmdirSync(tempDir, { recursive: true });
+  //fs.rmdirSync(tempDir, { recursive: true });  // requires Node.js >= 12.0
+  deleteFolderRecursive(tempDir);
 
   const url = req.protocol + "://" + req.get("host");
   imagePath = url + "/images/" + imageFilename;
@@ -174,3 +175,20 @@ function generateMandelbrot(req) {
 function getTempDir() {
   return fs.mkdtempSync("temp-"); 
 }
+
+// https://stackoverflow.com/questions/18052762/remove-directory-which-is-not-empty
+const deleteFolderRecursive = function (directoryPath) {
+  if (fs.existsSync(directoryPath)) {
+    fs.readdirSync(directoryPath).forEach((file, index) => {
+      const curPath = path.join(directoryPath, file);
+      if (fs.lstatSync(curPath).isDirectory()) {
+        // recurse
+        deleteFolderRecursive(curPath);
+      } else {
+        // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(directoryPath);
+  }
+};
