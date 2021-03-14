@@ -124,10 +124,10 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             xMax: this.post.xMax,
             yMin: this.post.yMin,
             yMax: this.post.yMax,
-            contours: this.post.contours,
-            theme: this.post.theme,
-            iterations: this.post.iterations,
-            size: this.post.size
+            contours: this.post.contours != null ? this.post.contours : this.contourList[1].value,
+            theme: this.post.theme != null ? this.post.theme : this.themes[9].value,
+            iterations: this.post.iterations != null ? this.post.iterations : 1024,
+            size: this.post.size != null ? this.post.size : 2048
           });
           this.xMinInit = Number(this.post.xMin);
           this.xMaxInit = Number(this.post.xMax);
