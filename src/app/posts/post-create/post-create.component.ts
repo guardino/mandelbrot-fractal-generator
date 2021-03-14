@@ -39,7 +39,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     { value: "32" },
     { value: "64" },
     { value: "128" },
-    { value: "256" }
+    { value: "256" },
+    { value: "512" }
   ];
 
   themes = [
