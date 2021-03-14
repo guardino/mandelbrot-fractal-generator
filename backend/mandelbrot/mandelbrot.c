@@ -114,10 +114,13 @@ int main(int argc, char *argv[])
     }
 
     outputPoints("contours.csv", cpoints, screen, contourLevels);
-    printPointsInSet("mandelbrot.txt", cpoints, screen, maxIterations, '*');
+    if (colorTheme == 0) {
+        printPointsInSet("mandelbrot.txt", cpoints, screen, maxIterations, '*');
+    }
+
     free(cpoints);
 
-    if (createGnuplotScipt("contours.plt", contourLevels, nPx, nPy, colorTheme) != NULL)
+    if (colorTheme > 0 && createGnuplotScipt("contours.plt", contourLevels, nPx, nPy, colorTheme) != NULL)
     {
         system("gnuplot < contours.plt");
         //system("ps2pdf contours.ps");
