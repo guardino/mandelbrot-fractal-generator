@@ -21,15 +21,14 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   form: FormGroup;
 
   iterationList = [
-    { value:  "256" },
     { value:  "512" },
     { value: "1024" },
     { value: "2048" },
-    { value: "4096" }
+    { value: "4096" },
+    { value: "8192" }
   ];
 
   sizeList = [
-    { value:  "256" },
     { value:  "512" },
     { value: "1024" },
     { value: "2048" },
@@ -126,8 +125,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             yMax: this.post.yMax,
             contours: this.post.contours != null ? this.post.contours : this.contourList[1].value,
             theme: this.post.theme != null ? this.post.theme : this.themes[9].value,
-            iterations: this.post.iterations != null ? this.post.iterations : 1024,
-            size: this.post.size != null ? this.post.size : 2048
+            iterations: this.post.iterations != null ? this.post.iterations : this.iterationList[1].value,
+            size: this.post.size != null ? this.post.size : this.sizeList[2].value
           });
           this.xMinInit = Number(this.post.xMin);
           this.xMaxInit = Number(this.post.xMax);
@@ -145,8 +144,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
           yMax: 1.3,
           contours: this.contourList[1].value,
           theme: this.themes[2].value,
-          iterations: this.iterationList[2].value,
-          size: this.sizeList[4].value
+          iterations: this.iterationList[1].value,
+          size: this.sizeList[1].value
         });
       }
     });
