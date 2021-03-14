@@ -25,14 +25,6 @@
       <mat-error *ngIf="form.get('yMax').invalid">Please enter y_max.</mat-error>
     </mat-form-field>
     <mat-form-field appearance="fill">
-      <mat-label>Contour Levels</mat-label>
-      <mat-select formControlName="contours">
-        <mat-option *ngFor="let contour of contourList" [value]="contour.value">
-          {{ contour.value }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="fill">
       <mat-label>Color Theme</mat-label>
       <mat-select formControlName="theme">
         <mat-option *ngFor="let theme of themes" [value]="theme.value">
@@ -40,22 +32,35 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Maximum Image Size (pixels)</mat-label>
-      <mat-select formControlName="size">
-        <mat-option *ngFor="let size of sizeList" [value]="size.value">
-          {{ size.value }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Maximum Iterations</mat-label>
-      <mat-select formControlName="iterations">
-        <mat-option *ngFor="let iteration of iterationList" [value]="iteration.value">
-          {{ iteration.value }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+    <section class="toggle-advance-section">
+      <mat-checkbox class="toggle-advance-margin" (change)="toggleAdvancedPanel()">Show Advanced Parameters</mat-checkbox>
+    </section>
+    <div *ngIf="showAdvancedPanel">
+      <mat-form-field appearance="fill">
+        <mat-label>Maximum Image Size (pixels)</mat-label>
+        <mat-select formControlName="size">
+          <mat-option *ngFor="let size of sizeList" [value]="size.value">
+            {{ size.value }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Maximum Iterations</mat-label>
+        <mat-select formControlName="iterations">
+          <mat-option *ngFor="let iteration of iterationList" [value]="iteration.value">
+            {{ iteration.value }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Contour Levels</mat-label>
+        <mat-select formControlName="contours">
+          <mat-option *ngFor="let contour of contourList" [value]="contour.value">
+            {{ contour.value }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
     <button mat-raised-button color="accent" type="submit">Create Fractal</button>
   </form>
 </mat-card>

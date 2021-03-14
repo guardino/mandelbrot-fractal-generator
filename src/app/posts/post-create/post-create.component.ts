@@ -19,6 +19,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   post: Post;
   isLoading = false;
   form: FormGroup;
+  showAdvancedPanel = false;
 
   iterationList = [
     { value:  "512" },
@@ -232,5 +233,9 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       iterations: this.form.value.iterations,
       size: this.form.value.size
     });
+  }
+
+  toggleAdvancedPanel() {
+    this.showAdvancedPanel = !this.showAdvancedPanel;
   }
 }
