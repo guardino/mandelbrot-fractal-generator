@@ -36,6 +36,7 @@ export class PostsService {
                 contours: post.contours,
                 theme: post.theme,
                 iterations: post.iterations,
+                size: post.size,
                 id: post._id,
                 imagePath: post.imagePath,
                 creator: post.creator
@@ -69,12 +70,13 @@ export class PostsService {
       contours: string;
       theme: string;
       iterations: string;
+      size: string;
       imagePath: string;
       creator: string;
     }>(BACKEND_URL + id);
   }
 
-  addPost(title: string, xMin: string, xMax: string, yMin: string, yMax: string, contours: string, theme: string, iterations: string, image: File) {
+  addPost(title: string, xMin: string, xMax: string, yMin: string, yMax: string, contours: string, theme: string, iterations: string, size: string, image: File) {
     const postData = new FormData();
     postData.append("title", title);
     postData.append("xMin", xMin);
@@ -84,6 +86,7 @@ export class PostsService {
     postData.append("contours", contours);
     postData.append("theme", theme);
     postData.append("iterations", iterations);
+    postData.append("size", size);
     postData.append("image", image);
     this.http
       .post<{ message: string; post: Post }>(
@@ -95,7 +98,7 @@ export class PostsService {
       });
   }
 
-  updatePost(id: string, title: string, xMin: string, xMax: string, yMin: string, yMax: string, contours: string, theme: string, iterations: string, image: File | string) {
+  updatePost(id: string, title: string, xMin: string, xMax: string, yMin: string, yMax: string, contours: string, theme: string, iterations: string, size: string, image: File | string) {
     let postData: Post | FormData;
     if (typeof image === "object") {
       postData = new FormData();
@@ -108,6 +111,7 @@ export class PostsService {
       postData.append("contours", contours);
       postData.append("theme", theme);
       postData.append("iterations", iterations);
+      postData.append("size", size);
       postData.append("image", image);
     } else {
       postData = {
@@ -120,6 +124,7 @@ export class PostsService {
         contours: contours,
         theme: theme,
         iterations: iterations,
+        size: size,
         imagePath: image,
         creator: null
       };

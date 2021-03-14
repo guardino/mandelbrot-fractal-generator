@@ -18,6 +18,7 @@ exports.createPost = (req, res, next) => {
     contours: req.body.contours,
     theme: req.body.theme,
     iterations: req.body.iterations,
+    size: req.body.size,
     imagePath: imagePath,
     creator: req.userData.userId
   });
@@ -53,6 +54,7 @@ exports.updatePost = (req, res, next) => {
     contours: req.body.contours,
     theme: req.body.theme,
     iterations: req.body.iterations,
+    size: req.body.size,
     imagePath: imagePath,
     creator: req.userData.userId
   });
@@ -162,7 +164,7 @@ function generateMandelbrot(req) {
         path.join(__dirname, "../mandelbrot/") + mandelbrot_exe +
         " -c " + req.body.contours +
         " -i " + req.body.iterations +
-        " -s 2048" +
+        " -s " + req.body.size +
         " -t " + req.body.theme +
         " " + req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
   console.log("RUNNING: " + cmd)

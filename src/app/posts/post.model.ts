@@ -8,6 +8,7 @@ export interface Post {
   contours: string;
   theme: string;
   iterations: string;
+  size: string;
   imagePath: string;
   creator: string;
 }

@@ -28,6 +28,14 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     { value: "4096" }
   ];
 
+  sizeList = [
+    { value:  "256" },
+    { value:  "512" },
+    { value: "1024" },
+    { value: "2048" },
+    { value: "4096" }
+  ];
+
   contourList = [
     { value: "32" },
     { value: "64" },
@@ -79,7 +87,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       yMax: new FormControl(null, { validators: [Validators.required] }),
       contours : new FormControl(null, { validators: [Validators.required] }),
       theme : new FormControl(null, { validators: [Validators.required] }),
-      iterations : new FormControl(null, { validators: [Validators.required] })
+      iterations : new FormControl(null, { validators: [Validators.required] }),
+      size : new FormControl(null, { validators: [Validators.required] })
     });
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has("postId")) {
@@ -105,6 +114,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             contours: postData.contours,
             theme: postData.theme,
             iterations: postData.iterations,
+            size: postData.size,
             imagePath: postData.imagePath,
             creator: postData.creator
           };
@@ -116,7 +126,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             yMax: this.post.yMax,
             contours: this.post.contours,
             theme: this.post.theme,
-            iterations: this.post.iterations
+            iterations: this.post.iterations,
+            size: this.post.size
           });
           this.xMinInit = Number(this.post.xMin);
           this.xMaxInit = Number(this.post.xMax);
@@ -134,7 +145,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
           yMax: 1.3,
           contours: this.contourList[1].value,
           theme: this.themes[2].value,
-          iterations: this.iterationList[2].value
+          iterations: this.iterationList[2].value,
+          size: this.sizeList[4].value
         });
       }
     });
@@ -155,6 +167,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.form.value.contours,
         this.form.value.theme,
         this.form.value.iterations,
+        this.form.value.size,
         null
       );
     } else {
@@ -168,6 +181,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.form.value.contours,
         this.form.value.theme,
         this.form.value.iterations,
+        this.form.value.size,
         null
       );
     }
@@ -215,7 +229,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       yMax: yMax,
       contours: this.form.value.contours,
       theme: this.form.value.theme,
-      iterations: this.form.value.iterations
+      iterations: this.form.value.iterations,
+      size: this.form.value.size
     });
   }
 }
