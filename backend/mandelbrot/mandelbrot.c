@@ -28,9 +28,9 @@ struct sregion {
     unsigned int nPx, nPy;
 };
 
-struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen);
+struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations);
 FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int contourLevels);
-FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struct sregion screen, char symbol);
+FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int maxIterations, char symbol);
 FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned int width, unsigned int height, unsigned int colorTheme);
 char *getRGBFormula(unsigned int colorTheme);
 
@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
     unsigned int maxPixels = MAX_PIXELS;
     unsigned int contourLevels = CONTOUR_LEVELS;
     unsigned int colorTheme = COLOR_THEME;
+    unsigned int maxIterations = MAX_ITERATIONS;
     unsigned int nPx;
     unsigned int nPy;
     double xMin = -2.5, xMax = 1.0, yMin = -1.3, yMax = 1.3;
@@ -49,6 +50,10 @@ int main(int argc, char *argv[])
             switch (c) {
             case 'c':
                 contourLevels = atoi(*++argv);
+                --argc;
+                break;
+            case 'i':
+                maxIterations = atoi(*++argv);
                 --argc;
                 break;
             case 's':
@@ -66,8 +71,8 @@ int main(int argc, char *argv[])
             }
 
     if (argc !=0 && argc != 4) {
-        printf("Usage: mandelbrot [-c contours] [-s size] [-t theme] [x_min x_max y_min y_max]\n");
-        printf("Example: mandelbrot -c 64 -s 2048 -t 2 -2.5 1.0 -1.3 1.3\n");
+        printf("Usage: mandelbrot [-c contours] [-i iterations] [-s size] [-t theme] [x_min x_max y_min y_max]\n");
+        printf("Example: mandelbrot -c 64 -i 1024 -s 2048 -t 2 -2.5 1.0 -1.3 1.3\n");
         return 1;
     }
 
@@ -95,7 +100,7 @@ int main(int argc, char *argv[])
     struct cregion domain = { A, B };
     struct sregion screen = { nPx, nPy };
 
-    struct cpoint *cpoints = scanPoints(domain, screen);
+    struct cpoint *cpoints = scanPoints(domain, screen, maxIterations);
 
     #ifdef _WIN32
         system("cmd.exe /c del /F/Q contours.* mandelbrot.txt > NUL 2>&1");
@@ -109,7 +114,7 @@ int main(int argc, char *argv[])
     }
 
     outputPoints("contours.csv", cpoints, screen, contourLevels);
-    printPointsInSet("mandelbrot.txt", cpoints, screen, '*');
+    printPointsInSet("mandelbrot.txt", cpoints, screen, maxIterations, '*');
     free(cpoints);
 
     if (createGnuplotScipt("contours.plt", contourLevels, nPx, nPy, colorTheme) != NULL)
@@ -120,7 +125,7 @@ int main(int argc, char *argv[])
     }
 }
 
-struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen)
+struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations)
 {
     struct cpoint *cpoints = malloc(screen.nPx * screen.nPy * sizeof(struct cpoint));
 
@@ -141,7 +146,7 @@ struct cpoint *scanPoints(const struct cregion domain, const struct sregion scre
             double x = 0.0;
             double y = 0.0;
             unsigned int iteration = 0;
-            while (x*x + y*y < 4 && iteration < MAX_ITERATIONS)
+            while (x*x + y*y < 4 && iteration < maxIterations)
             {
                 double xTemp = x*x - y*y + x0;
                 y = 2*x*y + y0;
@@ -179,7 +184,7 @@ FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sr
     fclose(fp);
 }
 
-FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struct sregion screen, char symbol)
+FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int maxIterations, char symbol)
 {
     FILE *fp;
     if ((fp = fopen(fileName, "w")) == NULL) {
@@ -191,7 +196,7 @@ FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struc
     {
         for (int i = 0; i < screen.nPx; i++)
         {
-            fprintf(fp, "%c", (cpoints->iter)== MAX_ITERATIONS ? symbol : ' ');
+            fprintf(fp, "%c", (cpoints->iter) == maxIterations ? symbol : ' ');
             cpoints++;
         }
 

@@ -17,6 +17,7 @@ exports.createPost = (req, res, next) => {
     yMax: req.body.yMax,
     contours: req.body.contours,
     theme: req.body.theme,
+    iterations: req.body.iterations,
     imagePath: imagePath,
     creator: req.userData.userId
   });
@@ -51,6 +52,7 @@ exports.updatePost = (req, res, next) => {
     yMax: req.body.yMax,
     contours: req.body.contours,
     theme: req.body.theme,
+    iterations: req.body.iterations,
     imagePath: imagePath,
     creator: req.userData.userId
   });
@@ -156,7 +158,13 @@ function generateMandelbrot(req) {
   const mandelbrot_exe = isWin ? "mandelbrot.exe" : "./mandelbrot";
 
   tempDir = getTempDir();
-  const cmd = "cd " + tempDir + " && " + path.join(__dirname, "../mandelbrot/") + mandelbrot_exe + " -c " + req.body.contours + " -s 2048" + " -t " + req.body.theme + " " + req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
+  const cmd = "cd " + tempDir + " && " +
+        path.join(__dirname, "../mandelbrot/") + mandelbrot_exe +
+        " -c " + req.body.contours +
+        " -i " + req.body.iterations +
+        " -s 2048" +
+        " -t " + req.body.theme +
+        " " + req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
   console.log("RUNNING: " + cmd)
   result = execSync(cmd);
 

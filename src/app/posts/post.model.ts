@@ -7,6 +7,7 @@ export interface Post {
   yMax: string;
   contours: string;
   theme: string;
+  iterations: string;
   imagePath: string;
   creator: string;
 }

@@ -40,6 +40,14 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Maximum Iterations</mat-label>
+      <mat-select formControlName="iterations">
+        <mat-option *ngFor="let iteration of iterationList" [value]="iteration.value">
+          {{ iteration.value }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
     <button mat-raised-button color="accent" type="submit">Create Fractal</button>
   </form>
 </mat-card>

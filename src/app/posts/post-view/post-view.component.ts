@@ -44,6 +44,7 @@ export class PostViewComponent implements OnInit, OnDestroy {
           yMax: postData.yMax,
           contours: postData.contours,
           theme: postData.theme,
+          iterations: postData.iterations,
           imagePath: postData.imagePath,
           creator: postData.creator
         };
