@@ -146,7 +146,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
           yMax: 1.3,
           contours: this.contourList[1].value,
           theme: this.themes[2].value,
-          iterations: this.iterationList[1].value,
+          iterations: this.iterationList[2].value,
           size: this.sizeList[1].value
         });
       }

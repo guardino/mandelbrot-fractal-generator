@@ -12,7 +12,7 @@
 
 #define CONTOUR_LEVELS 64
 #define COLOR_THEME 3
-#define MAX_ITERATIONS 1024
+#define MAX_ITERATIONS 2048
 #define MAX_PIXELS 1024
 
 struct cpoint {
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
     if (argc !=0 && argc != 4) {
         printf("Usage: mandelbrot [-c contours] [-i iterations] [-s size] [-t theme] [x_min x_max y_min y_max]\n");
-        printf("Example: mandelbrot -c 64 -i 1024 -s 1024 -t 3 -2.5 1.0 -1.3 1.3\n");
+        printf("Example: mandelbrot -c 64 -i 2048 -s 1024 -t 3 -2.5 1.0 -1.3 1.3\n");
         return 1;
     }
 
