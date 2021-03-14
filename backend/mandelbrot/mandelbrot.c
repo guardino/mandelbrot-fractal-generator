@@ -229,7 +229,6 @@ FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned in
     fprintf(fp, "set contour base\n");
     fprintf(fp, "set view map\n");
     fprintf(fp, "set cntrparam levels %d\n", contourLevels);
-    fprintf(fp, "set isosample 250, 250\n");
     fprintf(fp, "set palette rgbformulae %s\n", getRGBFormula(colorTheme));
     fprintf(fp, "\n");
     fprintf(fp, "set size ratio -1\n");
