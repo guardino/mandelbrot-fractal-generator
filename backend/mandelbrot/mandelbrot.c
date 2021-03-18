@@ -14,6 +14,7 @@
 #define COLOR_THEME 3
 #define MAX_ITERATIONS 2048
 #define MAX_PIXELS 1024
+#define FRACTAL_TYPE 1
 
 struct cpoint {
     double x0, y0;
@@ -41,6 +42,7 @@ int main(int argc, char *argv[])
     unsigned int contourLevels = CONTOUR_LEVELS;
     unsigned int colorTheme = COLOR_THEME;
     unsigned int maxIterations = MAX_ITERATIONS;
+    unsigned int fractalType = FRACTAL_TYPE;
     unsigned int nPx;
     unsigned int nPy;
     double xMin = -2.5, xMax = 1.0, yMin = -1.3, yMax = 1.3;
@@ -52,6 +54,10 @@ int main(int argc, char *argv[])
             switch (c) {
             case 'c':
                 contourLevels = atoi(*++argv);
+                --argc;
+                break;
+            case 'f':
+                fractalType = atoi(*++argv);
                 --argc;
                 break;
             case 'i':
@@ -86,7 +92,7 @@ int main(int argc, char *argv[])
         yMax = atof(*++argv);
     }
 
-    if (argc == 6)
+    if (argc == 6 && fractalType == 2)
     {
         xC = atof(*++argv);
         yC = atof(*++argv);
@@ -109,7 +115,7 @@ int main(int argc, char *argv[])
     struct cregion domain = { A, B };
     struct sregion screen = { nPx, nPy };
 
-    struct cpoint *cpoints = (argc == 6) ? scanJuliaPoints(domain, screen, maxIterations, C) : scanPoints(domain, screen, maxIterations);
+    struct cpoint *cpoints = (fractalType == 2) ? scanJuliaPoints(domain, screen, maxIterations, C) : scanPoints(domain, screen, maxIterations);
 
     #ifdef _WIN32
         system("cmd.exe /c del /F/Q contours.* mandelbrot.txt > NUL 2>&1");
