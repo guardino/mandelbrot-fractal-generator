@@ -33,6 +33,8 @@ export class PostsService {
                 xMax: post.xMax,
                 yMin: post.yMin,
                 yMax: post.yMax,
+                xC: post.xC,
+                yC: post.yC,
                 contours: post.contours,
                 theme: post.theme,
                 iterations: post.iterations,
@@ -67,6 +69,8 @@ export class PostsService {
       xMax: string;
       yMin: string;
       yMax: string;
+      xC: string;
+      yC: string;
       contours: string;
       theme: string;
       iterations: string;
@@ -76,13 +80,15 @@ export class PostsService {
     }>(BACKEND_URL + id);
   }
 
-  addPost(title: string, xMin: string, xMax: string, yMin: string, yMax: string, contours: string, theme: string, iterations: string, size: string, image: File) {
+  addPost(title: string, xMin: string, xMax: string, yMin: string, yMax: string, xC: string, yC: string, contours: string, theme: string, iterations: string, size: string, image: File) {
     const postData = new FormData();
     postData.append("title", title);
     postData.append("xMin", xMin);
     postData.append("xMax", xMax);
     postData.append("yMin", yMin);
     postData.append("yMax", yMax);
+    postData.append("xC", xC);
+    postData.append("yC", yC);
     postData.append("contours", contours);
     postData.append("theme", theme);
     postData.append("iterations", iterations);
@@ -98,7 +104,7 @@ export class PostsService {
       });
   }
 
-  updatePost(id: string, title: string, xMin: string, xMax: string, yMin: string, yMax: string, contours: string, theme: string, iterations: string, size: string, image: File | string) {
+  updatePost(id: string, title: string, xMin: string, xMax: string, yMin: string, yMax: string, xC: string, yC: string, contours: string, theme: string, iterations: string, size: string, image: File | string) {
     let postData: Post | FormData;
     if (typeof image === "object") {
       postData = new FormData();
@@ -108,6 +114,8 @@ export class PostsService {
       postData.append("xMax", xMax);
       postData.append("yMin", yMin);
       postData.append("yMax", yMax);
+      postData.append("xC", xC);
+      postData.append("yC", yC);
       postData.append("contours", contours);
       postData.append("theme", theme);
       postData.append("iterations", iterations);
@@ -121,6 +129,8 @@ export class PostsService {
         xMax: xMax,
         yMin: yMin,
         yMax: yMax,
+        xC: xC,
+        yC: yC,
         contours: contours,
         theme: theme,
         iterations: iterations,

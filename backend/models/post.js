@@ -6,6 +6,8 @@ const postSchema = mongoose.Schema({
   xMax: { type: String, required: true },
   yMin: { type: String, required: true },
   yMax: { type: String, required: true },
+  xC: { type: String, required: true },
+  yC: { type: String, required: true },
   contours: { type: String, required: true },
   theme: { type: String, required: true },
   iterations: { type: String, required: true },

@@ -29,6 +29,7 @@ struct sregion {
 };
 
 struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations);
+struct cpoint *scanJuliaPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations, const struct cpoint C);
 FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int contourLevels);
 FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int maxIterations, char symbol);
 FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned int width, unsigned int height, unsigned int colorTheme);
@@ -43,9 +44,10 @@ int main(int argc, char *argv[])
     unsigned int nPx;
     unsigned int nPy;
     double xMin = -2.5, xMax = 1.0, yMin = -1.3, yMax = 1.3;
+    double xC = 0.0, yC = 0.0;
 
     int c;
-    while (--argc > 4 && (*++argv)[0] == '-')
+    while (--argc > 6 && (*++argv)[0] == '-')
         while ((c = *++argv[0]) && !isdigit(c))
             switch (c) {
             case 'c':
@@ -70,18 +72,24 @@ int main(int argc, char *argv[])
                 break;
             }
 
-    if (argc !=0 && argc != 4) {
+    if (argc < 4) {
         printf("Usage: mandelbrot [-c contours] [-i iterations] [-s size] [-t theme] [x_min x_max y_min y_max]\n");
         printf("Example: mandelbrot -c 64 -i 2048 -s 1024 -t 3 -2.5 1.0 -1.3 1.3\n");
         return 1;
     }
 
-    if (argc == 4)
+    if (argc >= 4)
     {
         xMin = atof(*++argv);
         xMax = atof(*++argv);
         yMin = atof(*++argv);
         yMax = atof(*++argv);
+    }
+
+    if (argc == 6)
+    {
+        xC = atof(*++argv);
+        yC = atof(*++argv);
     }
 
     if (yMax - yMin > xMax - xMin)
@@ -97,10 +105,11 @@ int main(int argc, char *argv[])
 
     struct cpoint A = { xMin, yMin, 0 };
     struct cpoint B = { xMax, yMax, 0 };
+    struct cpoint C = { xC, yC, 0 };
     struct cregion domain = { A, B };
     struct sregion screen = { nPx, nPy };
 
-    struct cpoint *cpoints = scanPoints(domain, screen, maxIterations);
+    struct cpoint *cpoints = (argc == 6) ? scanJuliaPoints(domain, screen, maxIterations, C) : scanPoints(domain, screen, maxIterations);
 
     #ifdef _WIN32
         system("cmd.exe /c del /F/Q contours.* mandelbrot.txt > NUL 2>&1");
@@ -153,6 +162,41 @@ struct cpoint *scanPoints(const struct cregion domain, const struct sregion scre
             {
                 double xTemp = x*x - y*y + x0;
                 y = 2*x*y + y0;
+                x = xTemp;
+                iteration += 1;
+            }
+
+            struct cpoint p = { x0, y0, iteration };
+            *ptr++ = p;
+        }
+    }
+
+    return cpoints;
+}
+
+struct cpoint *scanJuliaPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations, const struct cpoint C)
+{
+    struct cpoint *cpoints = malloc(screen.nPx * screen.nPy * sizeof(struct cpoint));
+
+    double deltaX = (domain.B.x0 - domain.A.x0) / screen.nPx;
+    double deltaY = (domain.B.y0 - domain.A.y0) / screen.nPy;
+
+    //For each pixel (Px, Py) on the screen, do:
+    struct cpoint *ptr = cpoints;
+    for (int j = 0; j < screen.nPy; j++)
+    {
+        for (int i = 0; i < screen.nPx; i++)
+        {
+            double x0 = domain.A.x0 + deltaX*i;
+            double y0 = domain.A.y0 + deltaY*j;
+
+            double x = x0;
+            double y = y0;
+            unsigned int iteration = 0;
+            while (x*x + y*y < 4 && iteration < maxIterations)
+            {
+                double xTemp = x*x - y*y + C.x0;
+                y = 2*x*y + C.y0;
                 x = xTemp;
                 iteration += 1;
             }

@@ -20,6 +20,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   isLoading = false;
   form: FormGroup;
   showAdvancedPanel = false;
+  isJulia = false;
 
   iterationList = [
     { value:  "512" },
@@ -86,10 +87,13 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       xMax: new FormControl(null, { validators: [Validators.required] }),
       yMin: new FormControl(null, { validators: [Validators.required] }),
       yMax: new FormControl(null, { validators: [Validators.required] }),
+      xC: new FormControl(null, { validators: [Validators.required] }),
+      yC: new FormControl(null, { validators: [Validators.required] }),
       contours : new FormControl(null, { validators: [Validators.required] }),
       theme : new FormControl(null, { validators: [Validators.required] }),
       iterations : new FormControl(null, { validators: [Validators.required] }),
-      size : new FormControl(null, { validators: [Validators.required] })
+      size : new FormControl(null, { validators: [Validators.required] }),
+      isJulia : new FormControl('', { validators: [Validators.required] })
     });
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has("postId")) {
@@ -112,6 +116,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             xMax: postData.xMax,
             yMin: postData.yMin,
             yMax: postData.yMax,
+            xC: postData.xC,
+            yC: postData.yC,
             contours: postData.contours,
             theme: postData.theme,
             iterations: postData.iterations,
@@ -125,10 +131,13 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             xMax: this.post.xMax,
             yMin: this.post.yMin,
             yMax: this.post.yMax,
+            xC: this.post.xC,
+            yC: this.post.yC,
             contours: this.post.contours != null ? this.post.contours : this.contourList[1].value,
             theme: this.post.theme != null ? this.post.theme : this.themes[9].value,
             iterations: this.post.iterations != null ? this.post.iterations : this.iterationList[1].value,
-            size: this.post.size != null ? this.post.size : this.sizeList[2].value
+            size: this.post.size != null ? this.post.size : this.sizeList[2].value,
+            isJulia: this.post.xC != null && this.post.xC === "42" ? true : false
           });
           this.xMinInit = Number(this.post.xMin);
           this.xMaxInit = Number(this.post.xMax);
@@ -144,10 +153,13 @@ export class PostCreateComponent implements OnInit, OnDestroy {
           xMax: 1.0,
           yMin: -1.3,
           yMax: 1.3,
+          xC: this.isJulia ? 0.0 : 42.0,
+          yC: this.isJulia ? 0.0 : 42.0,
           contours: this.contourList[1].value,
           theme: this.themes[2].value,
           iterations: this.iterationList[2].value,
-          size: this.sizeList[1].value
+          size: this.sizeList[1].value,
+          isJulia: false
         });
       }
     });
@@ -165,6 +177,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.form.value.xMax,
         this.form.value.yMin,
         this.form.value.yMax,
+        this.form.value.xC,
+        this.form.value.yC,
         this.form.value.contours,
         this.form.value.theme,
         this.form.value.iterations,
@@ -179,6 +193,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.form.value.xMax,
         this.form.value.yMin,
         this.form.value.yMax,
+        this.form.value.xC,
+        this.form.value.yC,
         this.form.value.contours,
         this.form.value.theme,
         this.form.value.iterations,
@@ -228,11 +244,18 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       xMax: xMax,
       yMin: yMin,
       yMax: yMax,
+      xC: this.form.value.xC,
+      yC: this.form.value.yC,
       contours: this.form.value.contours,
       theme: this.form.value.theme,
       iterations: this.form.value.iterations,
-      size: this.form.value.size
+      size: this.form.value.size,
+      isJulia: this.form.value.xC != null && this.form.value.xC === "42" ? true : false
     });
+  }
+
+  toggleFractal() {
+    this.isJulia = !this.isJulia;
   }
 
   toggleAdvancedPanel() {

@@ -5,6 +5,8 @@ export interface Post {
   xMax: string;
   yMin: string;
   yMax: string;
+  xC: string;
+  yC: string;
   contours: string;
   theme: string;
   iterations: string;

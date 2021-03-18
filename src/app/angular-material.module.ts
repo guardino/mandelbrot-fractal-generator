@@ -9,6 +9,7 @@ import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatSelectModule } from "@angular/material/select";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 
 @NgModule({
   exports: [
@@ -22,6 +23,7 @@ import { MatSelectModule } from "@angular/material/select";
     MatDialogModule,
     MatCheckboxModule,
     MatSelectModule,
+    MatSlideToggleModule,
   ]
 })
 export class AngularMaterialModule {}

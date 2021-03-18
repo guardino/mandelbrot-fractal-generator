@@ -5,6 +5,7 @@
       <input matInput type="text" formControlName="title" placeholder="Fractal Title">
       <mat-error *ngIf="form.get('title').invalid">Please enter a fractal title.</mat-error>
     </mat-form-field>
+    <mat-slide-toggle formControlName="isJulia" (change)="toggleFractal()">Julia Set</mat-slide-toggle>
     <div class="post-image" *ngIf="post">
       <app-canvas-image [imageUrl]="post.imagePath" (messageEvent)="getRange($event)"></app-canvas-image>
     </div>
@@ -24,6 +25,16 @@
       <input matInput rows="4" formControlName="yMax" placeholder="y_max">
       <mat-error *ngIf="form.get('yMax').invalid">Please enter y_max.</mat-error>
     </mat-form-field>
+    <div *ngIf="isJulia">
+      <mat-form-field>
+        <input matInput rows="4" formControlName="xC" placeholder="x_C">
+        <mat-error *ngIf="form.get('xC').invalid">Please enter x_C.</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput rows="4" formControlName="yC" placeholder="y_C">
+        <mat-error *ngIf="form.get('yC').invalid">Please enter y_C.</mat-error>
+      </mat-form-field>
+    </div>
     <mat-form-field appearance="fill">
       <mat-label>Color Theme</mat-label>
       <mat-select formControlName="theme">
