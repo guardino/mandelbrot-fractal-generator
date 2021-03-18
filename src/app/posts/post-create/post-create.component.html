@@ -5,7 +5,7 @@
       <input matInput type="text" formControlName="title" placeholder="Fractal Title">
       <mat-error *ngIf="form.get('title').invalid">Please enter a fractal title.</mat-error>
     </mat-form-field>
-    <mat-slide-toggle formControlName="isJulia" (change)="toggleFractal()">Julia Set</mat-slide-toggle>
+    <mat-slide-toggle formControlName="isJulia" (change)="toggleFractal($event)">Julia Set</mat-slide-toggle>
     <div class="post-image" *ngIf="post">
       <app-canvas-image [imageUrl]="post.imagePath" (messageEvent)="getRange($event)"></app-canvas-image>
     </div>

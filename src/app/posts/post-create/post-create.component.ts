@@ -125,19 +125,22 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             imagePath: postData.imagePath,
             creator: postData.creator
           };
+
+          this.isJulia = this.post.xC != null && this.post.xC != "42" ? true : false;
+
           this.form.setValue({
             title: this.post.title,
             xMin: this.post.xMin,
             xMax: this.post.xMax,
             yMin: this.post.yMin,
             yMax: this.post.yMax,
-            xC: this.post.xC,
-            yC: this.post.yC,
+            xC: this.post.xC != null ? this.post.xC : "42",
+            yC: this.post.yC != null ? this.post.yC : "42",
             contours: this.post.contours != null ? this.post.contours : this.contourList[1].value,
             theme: this.post.theme != null ? this.post.theme : this.themes[9].value,
             iterations: this.post.iterations != null ? this.post.iterations : this.iterationList[1].value,
             size: this.post.size != null ? this.post.size : this.sizeList[2].value,
-            isJulia: this.post.xC != null && this.post.xC === "42" ? true : false
+            isJulia: this.isJulia
           });
           this.xMinInit = Number(this.post.xMin);
           this.xMaxInit = Number(this.post.xMax);
@@ -149,12 +152,12 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.postId = null;
         this.form.setValue({
           title: "",
-          xMin: -2.5,
-          xMax: 1.0,
-          yMin: -1.3,
-          yMax: 1.3,
-          xC: this.isJulia ? 0.0 : 42.0,
-          yC: this.isJulia ? 0.0 : 42.0,
+          xMin: this.isJulia ?   -1.5 : -2.5,
+          xMax: this.isJulia ?    1.5 : 1.0,
+          yMin: this.isJulia ?   -1.5 : -1.3,
+          yMax: this.isJulia ?    1.5 : 1.3,
+          xC:   this.isJulia ?   0.45 : 42.0,
+          yC:   this.isJulia ? 0.1428 : 42.0,
           contours: this.contourList[1].value,
           theme: this.themes[2].value,
           iterations: this.iterationList[2].value,
@@ -250,12 +253,12 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       theme: this.form.value.theme,
       iterations: this.form.value.iterations,
       size: this.form.value.size,
-      isJulia: this.form.value.xC != null && this.form.value.xC === "42" ? true : false
+      isJulia: this.form.value.xC != null && this.form.value.xC != "42" ? true : false
     });
   }
 
-  toggleFractal() {
-    this.isJulia = !this.isJulia;
+  toggleFractal(e) {
+    this.isJulia = e.checked;
   }
 
   toggleAdvancedPanel() {
