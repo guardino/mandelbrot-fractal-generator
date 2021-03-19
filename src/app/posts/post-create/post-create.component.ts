@@ -122,11 +122,12 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             theme: postData.theme,
             iterations: postData.iterations,
             size: postData.size,
+            fractal: postData.fractal,
             imagePath: postData.imagePath,
             creator: postData.creator
           };
 
-          this.isJulia = this.post.xC != null && this.post.xC != "42" ? true : false;
+          this.isJulia = this.post.fractal != null && this.post.fractal == "2" ? true : false;
 
           this.form.setValue({
             title: this.post.title,
@@ -134,8 +135,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             xMax: this.post.xMax,
             yMin: this.post.yMin,
             yMax: this.post.yMax,
-            xC: this.post.xC != null ? this.post.xC : "42",
-            yC: this.post.yC != null ? this.post.yC : "42",
+            xC: this.post.xC != null ? this.post.xC : "0.0",
+            yC: this.post.yC != null ? this.post.yC : "0.0",
             contours: this.post.contours != null ? this.post.contours : this.contourList[1].value,
             theme: this.post.theme != null ? this.post.theme : this.themes[9].value,
             iterations: this.post.iterations != null ? this.post.iterations : this.iterationList[1].value,
@@ -156,8 +157,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
           xMax: this.isJulia ?    1.5 : 1.0,
           yMin: this.isJulia ?   -1.5 : -1.3,
           yMax: this.isJulia ?    1.5 : 1.3,
-          xC:   this.isJulia ?   0.45 : 42.0,
-          yC:   this.isJulia ? 0.1428 : 42.0,
+          xC:   this.isJulia ?   0.45 : 0.0,
+          yC:   this.isJulia ? 0.1428 : 0.0,
           contours: this.contourList[1].value,
           theme: this.themes[2].value,
           iterations: this.iterationList[2].value,
@@ -186,6 +187,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.form.value.theme,
         this.form.value.iterations,
         this.form.value.size,
+        this.isJulia ? "2" : "1",
         null
       );
     } else {
@@ -202,6 +204,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.form.value.theme,
         this.form.value.iterations,
         this.form.value.size,
+        this.isJulia ? "2" : "1",
         null
       );
     }
@@ -253,7 +256,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       theme: this.form.value.theme,
       iterations: this.form.value.iterations,
       size: this.form.value.size,
-      isJulia: this.form.value.xC != null && this.form.value.xC != "42" ? true : false
+      isJulia: this.isJulia
     });
   }
 

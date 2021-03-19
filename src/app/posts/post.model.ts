@@ -11,6 +11,7 @@ export interface Post {
   theme: string;
   iterations: string;
   size: string;
+  fractal: string;
   imagePath: string;
   creator: string;
 }

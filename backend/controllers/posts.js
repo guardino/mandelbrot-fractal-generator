@@ -21,6 +21,7 @@ exports.createPost = (req, res, next) => {
     theme: req.body.theme,
     iterations: req.body.iterations,
     size: req.body.size,
+    fractal: req.body.fractal,
     imagePath: imagePath,
     creator: req.userData.userId
   });
@@ -59,6 +60,7 @@ exports.updatePost = (req, res, next) => {
     theme: req.body.theme,
     iterations: req.body.iterations,
     size: req.body.size,
+    fractal: req.body.fractal,
     imagePath: imagePath,
     creator: req.userData.userId
   });
@@ -167,13 +169,17 @@ function generateMandelbrot(req) {
   cmd = "cd " + tempDir + " && " +
         path.join(__dirname, "../mandelbrot/") + mandelbrot_exe +
         " -c " + req.body.contours +
+        " -f " + req.body.fractal +
         " -i " + req.body.iterations +
         " -s " + req.body.size +
         " -t " + req.body.theme +
         " " + req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
 
-  if (req.body.xC != "42") {
+  if (req.body.fractal == "2") {
     cmd += " " + req.body.xC + " " +  req.body.yC;
+  }
+  else {
+    cmd += " 0.0 0.0";
   }
 
   console.log("RUNNING: " + cmd)

@@ -39,6 +39,7 @@ export class PostsService {
                 theme: post.theme,
                 iterations: post.iterations,
                 size: post.size,
+                fractal: post.fractal,
                 id: post._id,
                 imagePath: post.imagePath,
                 creator: post.creator
@@ -75,12 +76,13 @@ export class PostsService {
       theme: string;
       iterations: string;
       size: string;
+      fractal: string;
       imagePath: string;
       creator: string;
     }>(BACKEND_URL + id);
   }
 
-  addPost(title: string, xMin: string, xMax: string, yMin: string, yMax: string, xC: string, yC: string, contours: string, theme: string, iterations: string, size: string, image: File) {
+  addPost(title: string, xMin: string, xMax: string, yMin: string, yMax: string, xC: string, yC: string, contours: string, theme: string, iterations: string, size: string, fractal: string, image: File) {
     const postData = new FormData();
     postData.append("title", title);
     postData.append("xMin", xMin);
@@ -93,6 +95,7 @@ export class PostsService {
     postData.append("theme", theme);
     postData.append("iterations", iterations);
     postData.append("size", size);
+    postData.append("fractal", fractal);
     postData.append("image", image);
     this.http
       .post<{ message: string; post: Post }>(
@@ -104,7 +107,7 @@ export class PostsService {
       });
   }
 
-  updatePost(id: string, title: string, xMin: string, xMax: string, yMin: string, yMax: string, xC: string, yC: string, contours: string, theme: string, iterations: string, size: string, image: File | string) {
+  updatePost(id: string, title: string, xMin: string, xMax: string, yMin: string, yMax: string, xC: string, yC: string, contours: string, theme: string, iterations: string, size: string, fractal: string, image: File | string) {
     let postData: Post | FormData;
     if (typeof image === "object") {
       postData = new FormData();
@@ -120,6 +123,7 @@ export class PostsService {
       postData.append("theme", theme);
       postData.append("iterations", iterations);
       postData.append("size", size);
+      postData.append("fractal", fractal);
       postData.append("image", image);
     } else {
       postData = {
@@ -135,6 +139,7 @@ export class PostsService {
         theme: theme,
         iterations: iterations,
         size: size,
+        fractal: fractal,
         imagePath: image,
         creator: null
       };
