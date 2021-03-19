@@ -93,7 +93,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       theme : new FormControl(null, { validators: [Validators.required] }),
       iterations : new FormControl(null, { validators: [Validators.required] }),
       size : new FormControl(null, { validators: [Validators.required] }),
-      isJulia : new FormControl('', { validators: [Validators.required] })
+      fractal: new FormControl('', { validators: [Validators.required] })
     });
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has("postId")) {
@@ -141,7 +141,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             theme: this.post.theme != null ? this.post.theme : this.themes[9].value,
             iterations: this.post.iterations != null ? this.post.iterations : this.iterationList[1].value,
             size: this.post.size != null ? this.post.size : this.sizeList[2].value,
-            isJulia: this.isJulia
+            fractal: this.post.fractal != null ? this.post.fractal : "1"
           });
           this.xMinInit = Number(this.post.xMin);
           this.xMaxInit = Number(this.post.xMax);
@@ -153,17 +153,17 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.postId = null;
         this.form.setValue({
           title: "",
-          xMin: this.isJulia ?   -1.5 : -2.5,
-          xMax: this.isJulia ?    1.5 : 1.0,
-          yMin: this.isJulia ?   -1.5 : -1.3,
-          yMax: this.isJulia ?    1.5 : 1.3,
-          xC:   this.isJulia ?   0.45 : 0.0,
-          yC:   this.isJulia ? 0.1428 : 0.0,
+          xMin: -2.5,
+          xMax: 1.0,
+          yMin: -1.3,
+          yMax: 1.3,
+          xC: 0.0,
+          yC: 0.0,
           contours: this.contourList[1].value,
           theme: this.themes[2].value,
           iterations: this.iterationList[2].value,
           size: this.sizeList[1].value,
-          isJulia: false
+          fractal: "1"
         });
       }
     });
@@ -187,7 +187,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.form.value.theme,
         this.form.value.iterations,
         this.form.value.size,
-        this.isJulia ? "2" : "1",
+        this.form.value.fractal,
         null
       );
     } else {
@@ -204,7 +204,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.form.value.theme,
         this.form.value.iterations,
         this.form.value.size,
-        this.isJulia ? "2" : "1",
+        this.form.value.fractal,
         null
       );
     }
@@ -256,12 +256,12 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       theme: this.form.value.theme,
       iterations: this.form.value.iterations,
       size: this.form.value.size,
-      isJulia: this.isJulia
+      fractal: this.form.value.fractal
     });
   }
 
-  toggleFractal(e) {
-    this.isJulia = e.checked;
+  changeFractal(e) {
+    this.isJulia = (e.value === "2");
   }
 
   toggleAdvancedPanel() {
