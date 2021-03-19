@@ -73,6 +73,40 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     private authService: AuthService
   ) {}
 
+  setDefaultsOnCreate() {
+    this.form.setValue({
+      title: this.isJulia ? "Default Julia Set" : "Default Mandelbrot Set",
+      xMin: this.isJulia ?   -1.5 : -2.5,
+      xMax: this.isJulia ?    1.5 :  1.0,
+      yMin: this.isJulia ?   -1.5 : -1.3,
+      yMax: this.isJulia ?    1.5 :  1.3,
+      xC:   this.isJulia ?   0.45 :  0.0,
+      yC:   this.isJulia ? 0.1428 :  0.0,
+      contours: this.contourList[1].value,
+      theme: this.themes[2].value,
+      iterations: this.iterationList[2].value,
+      size: this.sizeList[1].value,
+      fractal: this.isJulia ? "2" : "1"
+    });
+  }
+
+  setDefaultsOnChange() {
+    this.form.setValue({
+      title: this.isJulia ? "Example Julia Set" : "Example Mandelbrot Set",
+      xMin: this.form.value.xMin,
+      xMax: this.form.value.xMax,
+      yMin: this.form.value.yMin,
+      yMax: this.form.value.yMax,
+      xC: this.isJulia ? 0.5 * (Number(this.form.value.xMin) + Number(this.form.value.xMax)) : 0.0,
+      yC: this.isJulia ? 0.5 * (Number(this.form.value.yMin) + Number(this.form.value.yMax)) : 0.0,
+      contours: this.form.value.contours,
+      theme: this.form.value.theme,
+      iterations: this.form.value.iterations,
+      size: this.form.value.size,
+      fractal: this.isJulia ? "2" : "1"
+    });
+  }
+
   ngOnInit() {
     this.authStatusSub = this.authService
       .getAuthStatusListener()
@@ -151,20 +185,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       } else {
         this.mode = "create";
         this.postId = null;
-        this.form.setValue({
-          title: "",
-          xMin: -2.5,
-          xMax: 1.0,
-          yMin: -1.3,
-          yMax: 1.3,
-          xC: 0.0,
-          yC: 0.0,
-          contours: this.contourList[1].value,
-          theme: this.themes[2].value,
-          iterations: this.iterationList[2].value,
-          size: this.sizeList[1].value,
-          fractal: "1"
-        });
+        this.setDefaultsOnCreate();
       }
     });
   }
@@ -262,6 +283,13 @@ export class PostCreateComponent implements OnInit, OnDestroy {
 
   changeFractal(e) {
     this.isJulia = (e.value === "2");
+
+    if (this.mode === "create") {
+      this.setDefaultsOnCreate();
+    }
+    else {
+      this.setDefaultsOnChange();
+    }
   }
 
   toggleAdvancedPanel() {
