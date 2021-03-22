@@ -16,9 +16,12 @@ export class PostsService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  getPosts(postsPerPage: number, currentPage: number, showUserOnlyPosts: boolean) {
+  getPosts(postsPerPage: number, currentPage: number, showUserOnlyPosts: boolean, fractalId: string) {
     const route = showUserOnlyPosts ? "user" : "";
-    const queryParams = `?pagesize=${postsPerPage}&page=${currentPage}`;
+    let queryParams = `?pagesize=${postsPerPage}&page=${currentPage}`;
+    if (fractalId != null) {
+      queryParams += `&fractal=${fractalId}`;
+    }
     this.http
       .get<{ message: string; posts: any; maxPosts: number }>(
         BACKEND_URL + route + queryParams

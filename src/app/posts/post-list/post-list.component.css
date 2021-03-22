@@ -56,3 +56,13 @@ mat-paginator {
   margin: 0 12px;
   margin-bottom: 1rem;
 }
+
+.fractal-type-radio-group {
+  display: flex;
+  flex-direction: column;
+  margin: 15px 0;
+}
+
+.fractal-type-radio-button {
+  margin: 5px;
+}

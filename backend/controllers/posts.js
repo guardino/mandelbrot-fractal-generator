@@ -82,7 +82,27 @@ exports.updatePost = (req, res, next) => {
 exports.getPosts = (req, res, next) => {
   const pageSize = +req.query.pagesize;
   const currentPage = +req.query.page;
-  const postQuery = req.userData != null && req.userData.userId != null ? Post.find({ creator: req.userData.userId }) : Post.find();
+  const fractal = +req.query.fractal;
+
+  //TODO: Simplify the construction of queryFilter
+  let queryFilter;
+  if (req.userData != null && req.userData.userId != null)
+  {
+    if (fractal && fractal > 0)
+    {
+      queryFilter = { creator: req.userData.userId, fractal: fractal };
+    }
+    else
+    {
+      queryFilter = { creator: req.userData.userId };
+    }
+  }
+  else if (fractal && fractal > 0)
+  {
+    queryFilter = { fractal: fractal };
+  }
+
+  const postQuery = Post.find(queryFilter);
   let fetchedPosts;
   if (pageSize && currentPage) {
     postQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);

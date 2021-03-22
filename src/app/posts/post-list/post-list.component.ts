@@ -26,6 +26,7 @@ export class PostListComponent implements OnInit, OnDestroy {
   userIsAuthenticated = false;
   userId: string;
   showUserOnlyPosts: boolean = false;
+  fractalId = "0";
   private postsSub: Subscription;
   private authStatusSub: Subscription;
 
@@ -36,7 +37,7 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isLoading = true;
-    this.postsService.getPosts(this.postsPerPage, this.currentPage, false);
+    this.postsService.getPosts(this.postsPerPage, this.currentPage, false, null);
     this.userId = this.authService.getUserId();
     this.postsSub = this.postsService
       .getPostUpdateListener()
@@ -58,18 +59,23 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.currentPage = pageData.pageIndex + 1;
     this.postsPerPage = pageData.pageSize;
-    this.postsService.getPosts(this.postsPerPage, this.currentPage, this.showUserOnlyPosts);
+    this.postsService.getPosts(this.postsPerPage, this.currentPage, this.showUserOnlyPosts, this.fractalId);
   }
 
   setUserOnlyPosts(showUserOnlyPosts: boolean) {
     this.showUserOnlyPosts = showUserOnlyPosts;
-    this.postsService.getPosts(this.postsPerPage, this.currentPage, this.showUserOnlyPosts);
+    this.postsService.getPosts(this.postsPerPage, this.currentPage, this.showUserOnlyPosts, this.fractalId);
+  }
+
+  selectFractal(e) {
+    this.fractalId = e.value;
+    this.postsService.getPosts(this.postsPerPage, this.currentPage, this.showUserOnlyPosts, this.fractalId);
   }
 
   onDelete(postId: string) {
     this.isLoading = true;
     this.postsService.deletePost(postId).subscribe(() => {
-      this.postsService.getPosts(this.postsPerPage, this.currentPage, this.showUserOnlyPosts);
+      this.postsService.getPosts(this.postsPerPage, this.currentPage, this.showUserOnlyPosts, this.fractalId);
     }, () => {
       this.isLoading = false;
     });
