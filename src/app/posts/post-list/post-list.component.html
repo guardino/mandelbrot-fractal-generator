@@ -21,8 +21,11 @@
         <img [src]="post.imagePath" [alt]="post.title">
       </div>
       <div class="post-range">
-        <p>x: ({{ post.xMin }}, {{ post.xMax }})</p>
-        <p>y: ({{ post.yMin }}, {{ post.yMax }})</p>
+        <p>{{ post.xMin }} &lt; <i>x</i> &lt; {{ post.xMax }}</p>
+        <p>{{ post.yMin }} &lt; <i>y</i> &lt; {{ post.yMax }}</p>
+        <div *ngIf="post.fractal === '2'">
+          <p><i>C</i>: ({{ post.yC}}, {{ post.yC }})</p>
+        </div>
       </div>
       <mat-action-row *ngIf="userIsAuthenticated && userId === post.creator">
         <a mat-button color="primary" [routerLink]="['/edit', post.id]">EDIT</a>
