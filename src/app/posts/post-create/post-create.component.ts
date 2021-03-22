@@ -93,10 +93,10 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   setDefaultsOnChange() {
     this.form.setValue({
       title: this.isJulia ? "Example Julia Set" : "Example Mandelbrot Set",
-      xMin: this.form.value.xMin,
-      xMax: this.form.value.xMax,
-      yMin: this.form.value.yMin,
-      yMax: this.form.value.yMax,
+      xMin: this.isJulia ?   -1.5 : -2.5,
+      xMax: this.isJulia ?    1.5 :  1.0,
+      yMin: this.isJulia ?   -1.5 : -1.3,
+      yMax: this.isJulia ?    1.5 :  1.3,
       xC: this.isJulia ? 0.5 * (Number(this.form.value.xMin) + Number(this.form.value.xMax)) : 0.0,
       yC: this.isJulia ? 0.5 * (Number(this.form.value.yMin) + Number(this.form.value.yMax)) : 0.0,
       contours: this.form.value.contours,
@@ -132,7 +132,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has("postId")) {
         if (paramMap.has("clone")) {
-          this.mode = "create";
+          this.mode = "clone";
         }
         else
         {
@@ -195,7 +195,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       return;
     }
     this.isLoading = true;
-    if (this.mode === "create") {
+    if (this.mode === "create" || this.mode === "clone") {
       this.postsService.addPost(
         this.form.value.title,
         this.form.value.xMin,
