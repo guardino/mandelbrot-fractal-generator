@@ -79,8 +79,10 @@ int main(int argc, char *argv[])
             }
 
     if (argc < 4) {
-        printf("Usage: mandelbrot [-c contours] [-i iterations] [-s size] [-t theme] [x_min x_max y_min y_max]\n");
-        printf("Example: mandelbrot -c 64 -i 2048 -s 1024 -t 3 -2.5 1.0 -1.3 1.3\n");
+        printf("Usage: mandelbrot [-c contours] [-f fractal] [-i iterations] [-s size] [-t theme] [x_min x_max y_min y_max]\n");
+        printf("Examples:\n");
+        printf("    Mandelbrot Set: mandelbrot -c 64 -f 1 -i 2048 -s 1024 -t 3 -2.5 1.0 -1.3 1.3 0.0 0.0\n");
+        printf("    Julia Set:      mandelbrot -c 64 -f 2 -i 2048 -s 1024 -t 3 -1.5 1.5 -1.5 1.5 0.45 0.1428\n");
         return 1;
     }
 
@@ -156,8 +158,8 @@ struct cpoint *scanPoints(const struct cregion domain, const struct sregion scre
     {
         for (int i = 0; i < screen.nPx; i++)
         {
-            //x0 = scaled x coordinate of pixel (scaled to lie in the Mandelbrot X scale (-2.5, 1))
-            //y0 = scaled y coordinate of pixel (scaled to lie in the Mandelbrot Y scale (-1, 1))
+            //x0 = scaled x coordinate of pixel (scaled to lie in the Mandelbrot x scale)
+            //y0 = scaled y coordinate of pixel (scaled to lie in the Mandelbrot y scale)
             double x0 = domain.A.x0 + deltaX*i;
             double y0 = domain.A.y0 + deltaY*j;
 
@@ -169,7 +171,7 @@ struct cpoint *scanPoints(const struct cregion domain, const struct sregion scre
                 double xTemp = x*x - y*y + x0;
                 y = 2*x*y + y0;
                 x = xTemp;
-                iteration += 1;
+                iteration++;
             }
 
             struct cpoint p = { x0, y0, iteration };
@@ -193,6 +195,8 @@ struct cpoint *scanJuliaPoints(const struct cregion domain, const struct sregion
     {
         for (int i = 0; i < screen.nPx; i++)
         {
+            //x0 = scaled x coordinate of pixel (scaled to lie in the Mandelbrot x scale)
+            //y0 = scaled y coordinate of pixel (scaled to lie in the Mandelbrot y scale)
             double x0 = domain.A.x0 + deltaX*i;
             double y0 = domain.A.y0 + deltaY*j;
 
@@ -204,7 +208,7 @@ struct cpoint *scanJuliaPoints(const struct cregion domain, const struct sregion
                 double xTemp = x*x - y*y + C.x0;
                 y = 2*x*y + C.y0;
                 x = xTemp;
-                iteration += 1;
+                iteration++;
             }
 
             struct cpoint p = { x0, y0, iteration };
