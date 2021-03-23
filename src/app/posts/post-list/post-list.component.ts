@@ -64,11 +64,13 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   setUserOnlyPosts(showUserOnlyPosts: boolean) {
     this.showUserOnlyPosts = showUserOnlyPosts;
+    this.currentPage = 1;
     this.postsService.getPosts(this.postsPerPage, this.currentPage, this.showUserOnlyPosts, this.fractalId);
   }
 
   selectFractal(e) {
     this.fractalId = e.value;
+    this.currentPage = 1;
     this.postsService.getPosts(this.postsPerPage, this.currentPage, this.showUserOnlyPosts, this.fractalId);
   }
 
