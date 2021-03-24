@@ -8,7 +8,7 @@ gzip -cd backend.tar.gz | tar xvf -
 mv images backend
 
 cd ~/backend/mandelbrot
-gcc -O3 -o mandelbrot mandelbrot.c
+make
 
 cd ~/backend
 npm install
