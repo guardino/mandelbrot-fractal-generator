@@ -8,7 +8,6 @@ rm -f backend.tar
 rm -f backend.tar.gz
 rm -rf backend/angular
 rm -rf backend/images
-patch -p1 < mean-mandelbrot_aws_ubuntu_vm_deploy.patch
 ng build --prod
 tar cvf backend.tar backend && gzip backend.tar
 
