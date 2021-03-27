@@ -9,7 +9,7 @@
   <mat-radio-button class="fractal-type-radio-button" value="2">Julia</mat-radio-button>
 </mat-radio-group>
 <mat-accordion multi="true" *ngIf="posts.length > 0 && !isLoading">
-  <div *ngFor="let post of posts">
+  <div *ngFor="let post of posts | reverse_sort:'id'">
     <mat-expansion-panel *ngIf="!showUserOnlyPosts || (userIsAuthenticated && userId === post.creator && showUserOnlyPosts)">
       <mat-expansion-panel-header>
         <div class="preview-image">

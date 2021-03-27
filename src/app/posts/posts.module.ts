@@ -7,10 +7,11 @@ import { PostCreateComponent } from "./post-create/post-create.component";
 import { PostListComponent } from "./post-list/post-list.component";
 import { PostViewComponent } from "./post-view/post-view.component";
 import { CanvasComponent } from "./canvas/canvas.component";
+import { SortPipe } from "./posts.pipe";
 import { AngularMaterialModule } from "../angular-material.module";
 
 @NgModule({
-  declarations: [PostCreateComponent, PostListComponent, PostViewComponent, CanvasComponent],
+  declarations: [PostCreateComponent, PostListComponent, PostViewComponent, CanvasComponent, SortPipe],
   imports: [
     CommonModule,
     ReactiveFormsModule,
