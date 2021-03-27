@@ -110,7 +110,7 @@ exports.getPosts = (req, res, next) => {
     queryFilter = { $or: [{fractal: fractal}, {fractal: null}] };
   }
 
-  const postQuery = Post.find(queryFilter);
+  const postQuery = Post.find(queryFilter).sort( { '_id': -1 } );
   let fetchedPosts;
   if (pageSize && currentPage) {
     postQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
@@ -118,7 +118,7 @@ exports.getPosts = (req, res, next) => {
   postQuery
     .then(documents => {
       fetchedPosts = documents;
-      return Post.count();
+      return Post.count(queryFilter);
     })
     .then(count => {
       res.status(200).json({
