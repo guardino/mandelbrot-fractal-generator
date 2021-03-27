@@ -12,7 +12,7 @@ if [ ! -d backend/images ] ; then
 fi
 
 cd backend/mandelbrot
-rm -f mandelbrot.{o,exe}
+gmake clean
 gmake
 
 ng build

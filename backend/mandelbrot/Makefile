@@ -5,3 +5,4 @@ mandelbrot: mandelbrot.o
 
 clean:
 	rm -f mandelbrot.o
+	rm -f mandelbrot

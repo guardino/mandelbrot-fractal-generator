@@ -8,6 +8,7 @@ gzip -cd backend.tar.gz | tar xvf -
 mv images backend
 
 cd ~/backend/mandelbrot
+make clean
 make
 
 cd ~/backend
