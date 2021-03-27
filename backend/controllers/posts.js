@@ -88,18 +88,26 @@ exports.getPosts = (req, res, next) => {
   let queryFilter;
   if (req.userData != null && req.userData.userId != null)
   {
-    if (fractal && fractal > 0)
+    if (fractal && fractal == 2)
     {
       queryFilter = { creator: req.userData.userId, fractal: fractal };
+    }
+    else if (fractal && fractal == 1)  // Required for backward compatibility with posts without fractal field
+    {
+      queryFilter = { creator: req.userData.userId, $or: [{fractal: fractal}, {fractal: null}] };
     }
     else
     {
       queryFilter = { creator: req.userData.userId };
     }
   }
-  else if (fractal && fractal > 0)
+  else if (fractal && fractal == 2)
   {
     queryFilter = { fractal: fractal };
+  }
+  else if (fractal && fractal == 1)  // Required for backward compatibility with posts without fractal field
+  {
+    queryFilter = { $or: [{fractal: fractal}, {fractal: null}] };
   }
 
   const postQuery = Post.find(queryFilter);
