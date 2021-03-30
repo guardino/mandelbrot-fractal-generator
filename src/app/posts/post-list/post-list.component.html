@@ -1,13 +1,15 @@
 <mat-spinner *ngIf="isLoading"></mat-spinner>
 <section class="post-user-only-section" *ngIf="userIsAuthenticated && !isLoading">
-  <mat-checkbox class="post-user-only-margin" (change)="setUserOnlyPosts($event.checked)">Show user fractals only</mat-checkbox>
+  <mat-slide-toggle class="post-user-only-margin" (change)="setUserOnlyPosts($event.checked)" checked="checked">Show user fractals only</mat-slide-toggle>
 </section>
+<section class="fractal-type-section">
 <label id="fractal-type-label">Select fractal type:</label>
 <mat-radio-group class="fractal-type-radio-group" (change)="selectFractal($event)" aria-labelledby="fractal-type-label">
   <mat-radio-button class="fractal-type-radio-button" value="0" checked="checked">All</mat-radio-button>
   <mat-radio-button class="fractal-type-radio-button" value="1">Mandelbrot</mat-radio-button>
   <mat-radio-button class="fractal-type-radio-button" value="2">Julia</mat-radio-button>
 </mat-radio-group>
+</section>
 <mat-accordion multi="true" *ngIf="posts.length > 0 && !isLoading">
   <div *ngFor="let post of posts">
     <mat-expansion-panel *ngIf="!showUserOnlyPosts || (userIsAuthenticated && userId === post.creator && showUserOnlyPosts)">

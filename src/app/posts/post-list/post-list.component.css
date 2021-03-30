@@ -14,7 +14,7 @@ mat-paginator {
 .post-range {
   margin-top: 1rem;
   margin-bottom: 1rem;
-  color: gray;
+  color: #36454f;
 }
 
 .info-text {
@@ -49,12 +49,18 @@ mat-paginator {
 .post-user-only-section {
   margin: 12px 0;
   font-size: smaller;
-  color: gray;
+  color: #36454f;
 }
 
 .post-user-only-margin {
   margin: 0 12px;
   margin-bottom: 1rem;
+}
+
+.fractal-type-section {
+  margin: 12px 0;
+  font-size: smaller;
+  color: #36454f;
 }
 
 .fractal-type-radio-group {
@@ -64,5 +70,6 @@ mat-paginator {
 }
 
 .fractal-type-radio-button {
-  margin: 5px;
+  margin: 0 12px;
+  margin-bottom: 1rem;
 }
