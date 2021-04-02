@@ -6,7 +6,7 @@
       <mat-error *ngIf="form.get('title').invalid">Please enter a fractal title.</mat-error>
     </mat-form-field>
     <mat-radio-group formControlName="fractal" (change)="changeFractal($event)" aria-label="Select fractal type">
-      <mat-radio-button value="1">Mandelbrot</mat-radio-button>
+      <mat-radio-button value="1" [disabled]="isJulia === true">Mandelbrot</mat-radio-button>
       <mat-radio-button value="2">Julia</mat-radio-button>
     </mat-radio-group>
     <div class="post-image" *ngIf="post">

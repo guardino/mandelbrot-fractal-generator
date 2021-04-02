@@ -8,9 +8,10 @@ import { PostListComponent } from "./post-list/post-list.component";
 import { PostViewComponent } from "./post-view/post-view.component";
 import { CanvasComponent } from "./canvas/canvas.component";
 import { AngularMaterialModule } from "../angular-material.module";
+import { JuliaSettingsComponent } from "./post-create/julia-settings.component";
 
 @NgModule({
-  declarations: [PostCreateComponent, PostListComponent, PostViewComponent, CanvasComponent],
+  declarations: [PostCreateComponent, PostListComponent, PostViewComponent, CanvasComponent, JuliaSettingsComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,

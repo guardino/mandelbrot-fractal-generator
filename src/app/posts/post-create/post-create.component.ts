@@ -2,9 +2,11 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { ActivatedRoute, ParamMap } from "@angular/router";
 import { Subscription } from "rxjs";
+import { MatDialog } from "@angular/material/dialog";
 
 import { PostsService } from "../posts.service";
 import { Post } from "../post.model";
+import { JuliaSettingsComponent } from "./julia-settings.component";
 import { mimeType } from "./mime-type.validator";
 import { AuthService } from "../../auth/auth.service";
 
@@ -70,7 +72,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   constructor(
     public postsService: PostsService,
     public route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private dialog: MatDialog
   ) {}
 
   setDefaultsOnCreate() {
@@ -289,6 +292,10 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     }
     else {
       this.setDefaultsOnChange();
+    }
+
+    if (this.isJulia) {
+      this.dialog.open(JuliaSettingsComponent);
     }
   }
 
