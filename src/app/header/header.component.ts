@@ -1,7 +1,9 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Subscription } from "rxjs";
+import { MatDialog } from "@angular/material/dialog";
 
 import { AuthService } from "../auth/auth.service";
+import { AboutComponent } from "../about/about.component";
 
 @Component({
   selector: "app-header",
@@ -12,7 +14,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   userIsAuthenticated = false;
   private authListenerSubs: Subscription;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private dialog: MatDialog) {}
 
   ngOnInit() {
     this.userIsAuthenticated = this.authService.getIsAuth();
@@ -25,6 +27,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   onLogout() {
     this.authService.logout();
+  }
+
+  onAbout() {
+    this.dialog.open(AboutComponent);
   }
 
   ngOnDestroy() {

@@ -5,6 +5,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 
 import { AppComponent } from "./app.component";
 import { HeaderComponent } from "./header/header.component";
+import { AboutComponent } from "./about/about.component";
 import { AppRoutingModule } from "./app-routing.module";
 import { AuthInterceptor } from "./auth/auth-interceptor";
 import { ErrorInterceptor } from "./error-interceptor";
@@ -16,6 +17,7 @@ import { PostsModule } from "./posts/posts.module";
   declarations: [
     AppComponent,
     HeaderComponent,
+    AboutComponent,
     ErrorComponent
   ],
   imports: [
