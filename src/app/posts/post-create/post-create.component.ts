@@ -29,7 +29,10 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     { value: "1024" },
     { value: "2048" },
     { value: "4096" },
-    { value: "8192" }
+    { value: "8192" },
+    { value: "16384" },
+    { value: "32768" },
+    { value: "65536" }
   ];
 
   sizeList = [
