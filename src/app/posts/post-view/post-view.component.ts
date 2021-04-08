@@ -37,6 +37,7 @@ export class PostViewComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.post = {
           id: postData._id,
+          parentId: postData.parentId,
           title: postData.title,
           xMin: postData.xMin,
           xMax: postData.xMax,

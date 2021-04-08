@@ -1,5 +1,6 @@
 export interface Post {
   id: string;
+  parentId: string;
   title: string;
   xMin: string;
   xMax: string;

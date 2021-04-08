@@ -38,3 +38,7 @@ mat-action-row {
 .mat-success {
   color: #31b404;
 }
+
+.mat-info {
+  color: #5f9ea0;
+}

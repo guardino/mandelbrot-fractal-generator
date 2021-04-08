@@ -31,6 +31,7 @@ export class PostsService {
           return {
             posts: postData.posts.map(post => {
               return {
+                parentId: post.parentId,
                 title: post.title,
                 xMin: post.xMin,
                 xMax: post.xMax,
@@ -68,6 +69,7 @@ export class PostsService {
   getPost(id: string) {
     return this.http.get<{
       _id: string;
+      parentId: string;
       title: string;
       xMin: string;
       xMax: string;
@@ -85,8 +87,9 @@ export class PostsService {
     }>(BACKEND_URL + id);
   }
 
-  addPost(title: string, xMin: string, xMax: string, yMin: string, yMax: string, xC: string, yC: string, contours: string, theme: string, iterations: string, size: string, fractal: string, image: File) {
+  addPost(parentId: string, title: string, xMin: string, xMax: string, yMin: string, yMax: string, xC: string, yC: string, contours: string, theme: string, iterations: string, size: string, fractal: string, image: File) {
     const postData = new FormData();
+    postData.append("parentId", parentId);
     postData.append("title", title);
     postData.append("xMin", xMin);
     postData.append("xMax", xMax);
@@ -110,11 +113,12 @@ export class PostsService {
       });
   }
 
-  updatePost(id: string, title: string, xMin: string, xMax: string, yMin: string, yMax: string, xC: string, yC: string, contours: string, theme: string, iterations: string, size: string, fractal: string, image: File | string) {
+  updatePost(id: string, parentId: string, title: string, xMin: string, xMax: string, yMin: string, yMax: string, xC: string, yC: string, contours: string, theme: string, iterations: string, size: string, fractal: string, image: File | string) {
     let postData: Post | FormData;
     if (typeof image === "object") {
       postData = new FormData();
       postData.append("id", id);
+      postData.append("parentId", parentId);
       postData.append("title", title);
       postData.append("xMin", xMin);
       postData.append("xMax", xMax);
@@ -131,6 +135,7 @@ export class PostsService {
     } else {
       postData = {
         id: id,
+        parentId: parentId,
         title: title,
         xMin: xMin,
         xMax: xMax,

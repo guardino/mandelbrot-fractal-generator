@@ -46,6 +46,10 @@ mat-paginator {
   color: #31b404;
 }
 
+.mat-info {
+  color: #5f9ea0;
+}
+
 .post-user-only-section {
   margin: 12px 0;
   font-size: smaller;

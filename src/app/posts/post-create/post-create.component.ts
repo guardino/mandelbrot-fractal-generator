@@ -65,6 +65,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
 
   private mode = "create";
   private postId: string;
+  private parentId: string;
   private authStatusSub: Subscription;
 
   private xMinInit;
@@ -151,6 +152,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
           this.isLoading = false;
           this.post = {
             id: postData._id,
+            parentId: postData.parentId,
             title: postData.title,
             xMin: postData.xMin,
             xMax: postData.xMax,
@@ -168,6 +170,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
           };
 
           this.isJulia = this.post.fractal != null && this.post.fractal == "2" ? true : false;
+          this.parentId = this.post.parentId;
 
           this.form.setValue({
             title: this.post.title,
@@ -203,6 +206,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     if (this.mode === "create" || this.mode === "clone") {
       this.postsService.addPost(
+        this.mode === "clone" ? this.postId : null,
         this.form.value.title,
         this.form.value.xMin,
         this.form.value.xMax,
@@ -220,6 +224,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     } else {
       this.postsService.updatePost(
         this.postId,
+        this.parentId,
         this.form.value.title,
         this.form.value.xMin,
         this.form.value.xMax,

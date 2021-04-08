@@ -10,6 +10,7 @@ exports.createPost = (req, res, next) => {
   imagePath = generateMandelbrot(req);
 
   const post = new Post({
+    parentId: req.body.parentId,
     title: req.body.title,
     xMin: req.body.xMin,
     xMax: req.body.xMax,
@@ -49,6 +50,7 @@ exports.updatePost = (req, res, next) => {
 
   const post = new Post({
     _id: req.body.id,
+    parentId: req.body.parentId,
     title: req.body.title,
     xMin: req.body.xMin,
     xMax: req.body.xMax,

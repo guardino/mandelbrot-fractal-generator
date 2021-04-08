@@ -29,6 +29,9 @@
           <p><i>C</i>: ({{ post.yC}}, {{ post.yC }})</p>
         </div>
       </div>
+      <div *ngIf="post.parentId != 'null' && post.parentId !== null && post.parentId !== undefined">
+        <a mat-button color="info" [routerLink]="['/view', post.parentId]">VIEW PARENT</a>
+      </div>
       <mat-action-row *ngIf="userIsAuthenticated && userId === post.creator">
         <a mat-button color="primary" [routerLink]="['/edit', post.id]">EDIT</a>
         <a mat-button color="success" [routerLink]="['/clone', post.id, 'true']">CLONE</a>
