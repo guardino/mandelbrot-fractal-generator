@@ -4,7 +4,7 @@ MEAN stack app for generating Mandelbrot and Julia Sets
 
 Copyright (c) 2018-2021 Dr. Cesare Guardino
 
-MIT License
+MIT License (see LICENSE.txt)
 
 ## Description
 
