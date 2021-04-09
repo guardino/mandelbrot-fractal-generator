@@ -6,6 +6,12 @@ Copyright (c) 2018-2021 Dr. Cesare Guardino
 
 MIT License
 
+## Description
+
+- The MEAN stack used is based on the "Angular & NodeJS - The MEAN Stack Guide" course on Udemy (https://www.udemy.com/course/angular-2-and-nodejs-the-practical-guide) by Maximilian Schwarzmüller, and has been adapted for this application by Dr. Cesare Guardino.
+- The core Mandelbrot/Julia Set generator is a C-based code written by Dr. Cesare Guardino.
+- The actual fractal image is generated as a contour plot using Gnuplot (http://www.gnuplot.info). The `gnuplot` program needs to be on the PATH on the backend server.
+
 ## Development server
 
 - Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
