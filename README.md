@@ -20,6 +20,7 @@ MIT License (see LICENSE.txt)
 
 ## Build
 
+- Run `npm install` to download all the required development and runtime dependencies defined in `package.json` (creates `node_modules` directory).
 - Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
 ## Deployment
