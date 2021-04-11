@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>     /* atoi */
 #include <string.h>     /* strlen */
+#include "data_types.h"
 
 #define CONTOUR_LEVELS 64
 #define COLOR_THEME 3
@@ -17,7 +18,7 @@
 #define FRACTAL_TYPE 1
 
 struct cpoint {
-    double x0, y0;
+    REAL x0, y0;
     unsigned int iter;
 };
 
@@ -31,7 +32,7 @@ struct sregion {
 
 struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations);
 struct cpoint *scanJuliaPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations, const struct cpoint C);
-FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int contourLevels);
+FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct cregion domain, const struct sregion screen, unsigned int contourLevels);
 FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int maxIterations, char symbol);
 FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned int width, unsigned int height, unsigned int colorTheme);
 char *getRGBFormula(unsigned int colorTheme);
@@ -45,8 +46,8 @@ int main(int argc, char *argv[])
     unsigned int fractalType = FRACTAL_TYPE;
     unsigned int nPx;
     unsigned int nPy;
-    double xMin = -2.5, xMax = 1.0, yMin = -1.3, yMax = 1.3;
-    double xC = 0.0, yC = 0.0;
+    REAL xMin = -2.5, xMax = 1.0, yMin = -1.3, yMax = 1.3;
+    REAL xC = 0.0, yC = 0.0;
 
     int c;
     while (--argc > 6 && (*++argv)[0] == '-')
@@ -130,7 +131,7 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-    outputPoints("contours.csv", cpoints, screen, contourLevels);
+    outputPoints("contours.csv", cpoints, domain, screen, contourLevels);
     if (colorTheme == 0) {
         printPointsInSet("mandelbrot.txt", cpoints, screen, maxIterations, '*');
     }
@@ -149,8 +150,8 @@ struct cpoint *scanPoints(const struct cregion domain, const struct sregion scre
 {
     struct cpoint *cpoints = malloc(screen.nPx * screen.nPy * sizeof(struct cpoint));
 
-    double deltaX = (domain.B.x0 - domain.A.x0) / screen.nPx;
-    double deltaY = (domain.B.y0 - domain.A.y0) / screen.nPy;
+    REAL deltaX = (domain.B.x0 - domain.A.x0) / screen.nPx;
+    REAL deltaY = (domain.B.y0 - domain.A.y0) / screen.nPy;
 
     //For each pixel (Px, Py) on the screen, do:
     struct cpoint *ptr = cpoints;
@@ -160,15 +161,15 @@ struct cpoint *scanPoints(const struct cregion domain, const struct sregion scre
         {
             //x0 = scaled x coordinate of pixel (scaled to lie in the Mandelbrot x scale)
             //y0 = scaled y coordinate of pixel (scaled to lie in the Mandelbrot y scale)
-            double x0 = domain.A.x0 + deltaX*i;
-            double y0 = domain.A.y0 + deltaY*j;
+            REAL x0 = domain.A.x0 + deltaX*i;
+            REAL y0 = domain.A.y0 + deltaY*j;
 
-            double x = 0.0;
-            double y = 0.0;
+            REAL x = 0.0;
+            REAL y = 0.0;
             unsigned int iteration = 0;
             while (x*x + y*y < 4 && iteration < maxIterations)
             {
-                double xTemp = x*x - y*y + x0;
+                REAL xTemp = x*x - y*y + x0;
                 y = 2*x*y + y0;
                 x = xTemp;
                 iteration++;
@@ -186,8 +187,8 @@ struct cpoint *scanJuliaPoints(const struct cregion domain, const struct sregion
 {
     struct cpoint *cpoints = malloc(screen.nPx * screen.nPy * sizeof(struct cpoint));
 
-    double deltaX = (domain.B.x0 - domain.A.x0) / screen.nPx;
-    double deltaY = (domain.B.y0 - domain.A.y0) / screen.nPy;
+    REAL deltaX = (domain.B.x0 - domain.A.x0) / screen.nPx;
+    REAL deltaY = (domain.B.y0 - domain.A.y0) / screen.nPy;
 
     //For each pixel (Px, Py) on the screen, do:
     struct cpoint *ptr = cpoints;
@@ -197,15 +198,15 @@ struct cpoint *scanJuliaPoints(const struct cregion domain, const struct sregion
         {
             //x0 = scaled x coordinate of pixel (scaled to lie in the Mandelbrot x scale)
             //y0 = scaled y coordinate of pixel (scaled to lie in the Mandelbrot y scale)
-            double x0 = domain.A.x0 + deltaX*i;
-            double y0 = domain.A.y0 + deltaY*j;
+            REAL x0 = domain.A.x0 + deltaX*i;
+            REAL y0 = domain.A.y0 + deltaY*j;
 
-            double x = x0;
-            double y = y0;
+            REAL x = x0;
+            REAL y = y0;
             unsigned int iteration = 0;
             while (x*x + y*y < 4 && iteration < maxIterations)
             {
-                double xTemp = x*x - y*y + C.x0;
+                REAL xTemp = x*x - y*y + C.x0;
                 y = 2*x*y + C.y0;
                 x = xTemp;
                 iteration++;
@@ -219,7 +220,7 @@ struct cpoint *scanJuliaPoints(const struct cregion domain, const struct sregion
     return cpoints;
 }
 
-FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int contourLevels)
+FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct cregion domain, const struct sregion screen, unsigned int contourLevels)
 {
     FILE *fp;
     if ((fp = fopen(fileName, "w")) == NULL) {
@@ -227,11 +228,13 @@ FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct sr
         return NULL;
     }
 
+    REAL factor = 1.0 / (domain.B.x0 - domain.A.x0);
+
     for (int j = 0; j < screen.nPy; j++)
     {
         for (int i = 0; i < screen.nPx; i++)
         {
-            fprintf(fp, "%.17g, %.17g, %d\n", cpoints->x0, cpoints->y0, (cpoints->iter)%contourLevels);
+            fprintf(fp, "%.21Lf, %.21Lf, %d\n", (cpoints->x0 - domain.A.x0) * factor, (cpoints->y0 - domain.A.y0) * factor, (cpoints->iter)%contourLevels);
             cpoints++;
         }
 
