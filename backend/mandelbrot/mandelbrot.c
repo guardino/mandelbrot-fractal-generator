@@ -89,16 +89,16 @@ int main(int argc, char *argv[])
 
     if (argc >= 4)
     {
-        xMin = atof(*++argv);
-        xMax = atof(*++argv);
-        yMin = atof(*++argv);
-        yMax = atof(*++argv);
+        xMin = strtold(*++argv, NULL);
+        xMax = strtold(*++argv, NULL);
+        yMin = strtold(*++argv, NULL);
+        yMax = strtold(*++argv, NULL);
     }
 
     if (argc == 6 && fractalType == 2)
     {
-        xC = atof(*++argv);
-        yC = atof(*++argv);
+        xC = strtold(*++argv, NULL);
+        yC = strtold(*++argv, NULL);
     }
 
     if (yMax - yMin > xMax - xMin)
