@@ -11,6 +11,10 @@
 #include <string.h>     /* strlen */
 #include "data_types.h"
 
+#ifdef REAL_QUAD
+    #include <quadmath.h>
+#endif
+
 #define CONTOUR_LEVELS 64
 #define COLOR_THEME 3
 #define MAX_ITERATIONS 2048
@@ -89,16 +93,40 @@ int main(int argc, char *argv[])
 
     if (argc >= 4)
     {
-        xMin = strtold(*++argv, NULL);
-        xMax = strtold(*++argv, NULL);
-        yMin = strtold(*++argv, NULL);
-        yMax = strtold(*++argv, NULL);
+        #ifdef REAL_QUAD
+            xMin = strtoflt128(*++argv, NULL);
+            xMax = strtoflt128(*++argv, NULL);
+            yMin = strtoflt128(*++argv, NULL);
+            yMax = strtoflt128(*++argv, NULL);
+        #else
+            #ifdef REAL_LONG
+                xMin = strtold(*++argv, NULL);
+                xMax = strtold(*++argv, NULL);
+                yMin = strtold(*++argv, NULL);
+                yMax = strtold(*++argv, NULL);
+            #else
+                xMin = atof(*++argv);
+                xMax = atof(*++argv);
+                yMin = atof(*++argv);
+                yMax = atof(*++argv);
+            #endif  // REAL_LONG
+        #endif  // REAL_QUAD
     }
 
     if (argc == 6 && fractalType == 2)
     {
-        xC = strtold(*++argv, NULL);
-        yC = strtold(*++argv, NULL);
+        #ifdef REAL_QUAD
+            xC = strtoflt128(*++argv, NULL);
+            yC = strtoflt128(*++argv, NULL);
+        #else
+            #ifdef REAL_LONG
+                xC = strtold(*++argv, NULL);
+                yC = strtold(*++argv, NULL);
+            #else
+                xC = atof(*++argv);
+                yC = atof(*++argv);
+            #endif  // REAL_LONG
+        #endif  // REAL_QUAD
     }
 
     if (yMax - yMin > xMax - xMin)
@@ -230,11 +258,29 @@ FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct cr
 
     REAL factor = 1.0 / (domain.B.x0 - domain.A.x0);
 
+    #ifdef REAL_QUAD
+        int prec = 30;
+        unsigned int n = 128;
+        char x_str[n];
+        char y_str[n];
+    #endif
+
     for (int j = 0; j < screen.nPy; j++)
     {
         for (int i = 0; i < screen.nPx; i++)
         {
-            fprintf(fp, "%.21Lf, %.21Lf, %d\n", (cpoints->x0 - domain.A.x0) * factor, (cpoints->y0 - domain.A.y0) * factor, (cpoints->iter)%contourLevels);
+            #ifdef REAL_QUAD
+                quadmath_snprintf(x_str, n + 1, "%36.*Qf", prec, (cpoints->x0 - domain.A.x0) * factor);
+                quadmath_snprintf(y_str, n + 1, "%36.*Qf", prec, (cpoints->y0 - domain.A.y0) * factor);
+                fprintf(fp, "%s, %s, %d\n", x_str, y_str, (cpoints->iter)%contourLevels);
+            #else
+                #ifdef REAL_LONG
+                    fprintf(fp, "%.21Lf, %.21Lf, %d\n", (cpoints->x0 - domain.A.x0) * factor, (cpoints->y0 - domain.A.y0) * factor, (cpoints->iter)%contourLevels);
+                #else
+                    fprintf(fp, "%.17g, %.17g, %d\n", cpoints->x0, cpoints->y0, (cpoints->iter)%contourLevels);
+                #endif  // REAL_LONG
+            #endif  // REAL_QUAD
+
             cpoints++;
         }
 
