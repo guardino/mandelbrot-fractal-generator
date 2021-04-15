@@ -259,7 +259,7 @@ FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct cr
     REAL factor = 1.0 / (domain.B.x0 - domain.A.x0);
 
     #ifdef REAL_QUAD
-        int prec = 30;
+        int prec = 34;
         unsigned int n = 128;
         char x_str[n];
         char y_str[n];
