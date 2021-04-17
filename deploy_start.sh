@@ -9,7 +9,7 @@ mv images backend
 
 cd ~/backend/mandelbrot
 make clean
-make -f Makefile_linux
+make
 
 cd ~/backend
 npm install
