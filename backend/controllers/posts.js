@@ -4,8 +4,8 @@ const path = require("path");
 
 const Post = require("../models/post");
 
-const use_80bit_precision  = 1.0e-13;
-const use_128bit_precision = 1.0e-16;
+const use_80bit_precision  = 1.0e-11;  // 1.0e-13 is the limit
+const use_128bit_precision = 1.0e-15;  // 1.0e-16 is the limit
 
 var isWin = process.platform === "win32";
 
