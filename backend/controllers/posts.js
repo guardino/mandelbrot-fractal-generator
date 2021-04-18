@@ -4,6 +4,9 @@ const path = require("path");
 
 const Post = require("../models/post");
 
+const use_80bit_precision  = 1.0e-13;
+const use_128bit_precision = 1.0e-16;
+
 var isWin = process.platform === "win32";
 
 exports.createPost = (req, res, next) => {
@@ -193,7 +196,14 @@ function deleteImage(req) {
 }
 
 function generateMandelbrot(req) {
-  const mandelbrot_exe = isWin ? "mandelbrot.exe" : "./mandelbrot";
+  var mandelbrot_exe = isWin ? "mandelbrot-64.exe" : "./mandelbrot-64";
+
+  if (Math.abs(req.body.xMax - req.body.xMin) < use_128bit_precision || Math.abs(req.body.yMax - req.body.yMin) < use_128bit_precision) {
+    mandelbrot_exe = isWin ? "mandelbrot-128.exe" : "./mandelbrot-128";
+  }
+  else if (Math.abs(req.body.xMax - req.body.xMin) < use_80bit_precision || Math.abs(req.body.yMax - req.body.yMin) < use_80bit_precision) {
+    mandelbrot_exe = isWin ? "mandelbrot-80.exe" : "./mandelbrot-80";
+  }
 
   tempDir = getTempDir();
   cmd = "cd " + tempDir + " && " +

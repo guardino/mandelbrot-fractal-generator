@@ -12,10 +12,19 @@ if [ ! -d backend/images ] ; then
 fi
 
 cd backend/mandelbrot
+
 gmake clean
 gmake
+mv mandelbrot.exe mandelbrot-64.exe
 
-ng build
+gmake clean
+gmake REAL_LONG=1
+mv mandelbrot.exe mandelbrot-80.exe
+
+gmake clean
+gmake REAL_QUAD=1
+mv mandelbrot.exe mandelbrot-128.exe
 
 cd ../..
+ng build
 npm run start:server
