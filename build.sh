@@ -11,20 +11,7 @@ if [ ! -d backend/images ] ; then
     mkdir backend/images
 fi
 
-cd backend/mandelbrot
+./backend/mandelbrot/compile.sh
 
-gmake clean
-gmake
-mv mandelbrot.exe mandelbrot-64.exe
-
-gmake clean
-gmake REAL_LONG=1
-mv mandelbrot.exe mandelbrot-80.exe
-
-gmake clean
-gmake REAL_QUAD=1
-mv mandelbrot.exe mandelbrot-128.exe
-
-cd ../..
 ng build
 npm run start:server

@@ -7,18 +7,7 @@ rm -rf backend
 gzip -cd backend.tar.gz | tar xvf -
 mv images backend
 
-cd ~/backend/mandelbrot
-make clean
-make
-mv mandelbrot.exe mandelbrot-64.exe
-
-make clean
-make REAL_LONG=1
-mv mandelbrot.exe mandelbrot-80.exe
-
-make clean
-make REAL_QUAD=1
-mv mandelbrot.exe mandelbrot-128.exe
+./backend/mandelbrot/compile.sh
 
 cd ~/backend
 npm install
