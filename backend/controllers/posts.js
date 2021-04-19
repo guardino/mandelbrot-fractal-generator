@@ -196,13 +196,17 @@ function deleteImage(req) {
 }
 
 function generateMandelbrot(req) {
-  var mandelbrot_exe = isWin ? "mandelbrot-64.exe" : "./mandelbrot-64";
-
+  var bit_accuracy = "64";
   if (Math.abs(req.body.xMax - req.body.xMin) < use_128bit_precision || Math.abs(req.body.yMax - req.body.yMin) < use_128bit_precision) {
-    mandelbrot_exe = isWin ? "mandelbrot-128.exe" : "./mandelbrot-128";
+    bit_accuracy = "128";
   }
   else if (Math.abs(req.body.xMax - req.body.xMin) < use_80bit_precision || Math.abs(req.body.yMax - req.body.yMin) < use_80bit_precision) {
-    mandelbrot_exe = isWin ? "mandelbrot-80.exe" : "./mandelbrot-80";
+    bit_accuracy = "80";
+  }
+
+  var mandelbrot_exe = "mandelbrot-" + bit_accuracy;
+  if (isWin) {
+    mandelbrot_exe += ".exe";
   }
 
   tempDir = getTempDir();
