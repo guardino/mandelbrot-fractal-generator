@@ -26,7 +26,7 @@
         <p>{{ post.xMin }} &lt; <i>x</i> &lt; {{ post.xMax }}</p>
         <p>{{ post.yMin }} &lt; <i>y</i> &lt; {{ post.yMax }}</p>
         <div *ngIf="post.fractal === '2'">
-          <p><i>C</i>: ({{ post.yC}}, {{ post.yC }})</p>
+          <p><i>C</i>: ({{ post.xC}}, {{ post.yC }})</p>
         </div>
       </div>
       <mat-action-row *ngIf="userIsAuthenticated && userId === post.creator">
