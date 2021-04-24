@@ -6,6 +6,7 @@
 */
 
 #include <ctype.h>      /* toupper */
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>     /* atoi */
 #include <string.h>     /* strlen */
@@ -34,8 +35,7 @@ struct sregion {
     unsigned int nPx, nPy;
 };
 
-struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations);
-struct cpoint *scanJuliaPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations, const struct cpoint C);
+struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations, const struct cpoint C, const bool isJulia);
 FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct cregion domain, const struct sregion screen, unsigned int contourLevels);
 FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int maxIterations, char symbol);
 FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned int width, unsigned int height, unsigned int colorTheme);
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
     struct cregion domain = { A, B };
     struct sregion screen = { nPx, nPy };
 
-    struct cpoint *cpoints = (fractalType == 2) ? scanJuliaPoints(domain, screen, maxIterations, C) : scanPoints(domain, screen, maxIterations);
+    struct cpoint *cpoints = scanPoints(domain, screen, maxIterations, C, fractalType == 2);
 
     #ifdef _WIN32
         system("cmd.exe /c del /F/Q contours.* mandelbrot.txt > NUL 2>&1");
@@ -174,68 +174,36 @@ int main(int argc, char *argv[])
     }
 }
 
-struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations)
+struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations, const struct cpoint C, const bool isJulia)
 {
     struct cpoint *cpoints = malloc(screen.nPx * screen.nPy * sizeof(struct cpoint));
 
     REAL deltaX = (domain.B.x0 - domain.A.x0) / screen.nPx;
     REAL deltaY = (domain.B.y0 - domain.A.y0) / screen.nPy;
 
-    //For each pixel (Px, Py) on the screen, do:
+    // Loop over all screen pixels:
     struct cpoint *ptr = cpoints;
     for (int j = 0; j < screen.nPy; j++)
     {
         for (int i = 0; i < screen.nPx; i++)
         {
-            //x0 = scaled x coordinate of pixel (scaled to lie in the Mandelbrot x scale)
-            //y0 = scaled y coordinate of pixel (scaled to lie in the Mandelbrot y scale)
-            REAL x0 = domain.A.x0 + deltaX*i;
-            REAL y0 = domain.A.y0 + deltaY*j;
+            // Determine sample point in complex plane by scaling current pixel coordinates:
+            const REAL x0 = domain.A.x0 + deltaX*i;
+            const REAL y0 = domain.A.y0 + deltaY*j;
 
-            REAL x = 0.0;
-            REAL y = 0.0;
+            // Set point C: For Mandelbot sets this is the current sample point. For Julia sets this is contant and pre-defined:
+            const REAL xC = isJulia ? C.x0 : x0;
+            const REAL yC = isJulia ? C.y0 : y0;
+
+            // Set initial values: For Mandelbot sets this 0. For Julia sets this is the current sample point:
+            REAL x = isJulia ? x0 : 0.0;
+            REAL y = isJulia ? y0 : 0.0;
+
             unsigned int iteration = 0;
             while (x*x + y*y < 4 && iteration < maxIterations)
             {
-                REAL xTemp = x*x - y*y + x0;
-                y = 2*x*y + y0;
-                x = xTemp;
-                iteration++;
-            }
-
-            struct cpoint p = { x0, y0, iteration };
-            *ptr++ = p;
-        }
-    }
-
-    return cpoints;
-}
-
-struct cpoint *scanJuliaPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations, const struct cpoint C)
-{
-    struct cpoint *cpoints = malloc(screen.nPx * screen.nPy * sizeof(struct cpoint));
-
-    REAL deltaX = (domain.B.x0 - domain.A.x0) / screen.nPx;
-    REAL deltaY = (domain.B.y0 - domain.A.y0) / screen.nPy;
-
-    //For each pixel (Px, Py) on the screen, do:
-    struct cpoint *ptr = cpoints;
-    for (int j = 0; j < screen.nPy; j++)
-    {
-        for (int i = 0; i < screen.nPx; i++)
-        {
-            //x0 = scaled x coordinate of pixel (scaled to lie in the Mandelbrot x scale)
-            //y0 = scaled y coordinate of pixel (scaled to lie in the Mandelbrot y scale)
-            REAL x0 = domain.A.x0 + deltaX*i;
-            REAL y0 = domain.A.y0 + deltaY*j;
-
-            REAL x = x0;
-            REAL y = y0;
-            unsigned int iteration = 0;
-            while (x*x + y*y < 4 && iteration < maxIterations)
-            {
-                REAL xTemp = x*x - y*y + C.x0;
-                y = 2*x*y + C.y0;
+                REAL xTemp = x*x - y*y + xC;
+                y = 2*x*y + yC;
                 x = xTemp;
                 iteration++;
             }
