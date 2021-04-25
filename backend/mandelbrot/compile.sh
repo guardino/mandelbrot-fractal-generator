@@ -2,7 +2,7 @@
 
 cd ${0%/*} || exit 1    # run from this directory
 
-if [[ "$OSTYPE" == "msys" ]]; then
+if [ "$OSTYPE" = "msys" ]; then
     MAKE_PRG="gmake"
     EXE_EXT=".exe"
 else
