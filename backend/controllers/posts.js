@@ -49,7 +49,7 @@ exports.createPost = (req, res, next) => {
 
 exports.updatePost = (req, res, next) => {
   imagePath = generateMandelbrot(req);
-  deleteImage(req);
+  //deleteImage(req);
 
   const post = new Post({
     _id: req.body.id,
