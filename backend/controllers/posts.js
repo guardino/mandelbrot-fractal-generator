@@ -49,9 +49,8 @@ exports.createPost = (req, res, next) => {
 
 exports.updatePost = (req, res, next) => {
   imagePath = generateMandelbrot(req);
-  //deleteImage(req);
 
-  const post = new Post({
+  const updatedPost = new Post({
     _id: req.body.id,
     parentId: req.body.parentId,
     title: req.body.title,
@@ -69,7 +68,17 @@ exports.updatePost = (req, res, next) => {
     imagePath: imagePath,
     creator: req.userData.userId
   });
-  Post.updateOne({ _id: req.params.id, creator: req.userData.userId }, post)
+  Post.findById(req.params.id)
+    .then(post => {
+      if (post) {
+        deleteImage(req, post);
+      } else {
+        console.log("Post not found during image deletion!");
+      }
+    })
+    .then(() => {
+      return Post.updateOne({ _id: req.params.id, creator: req.userData.userId }, updatedPost)
+    })
     .then(result => {
       if (result.n > 0) {
         res.status(200).json({ message: "Update successful!" });
@@ -79,7 +88,7 @@ exports.updatePost = (req, res, next) => {
     })
     .catch(error => {
       res.status(500).json({
-        message: "Couldn't udpate post!"
+        message: "Couldn't update post!"
       });
     });
 };
@@ -156,9 +165,17 @@ exports.getPost = (req, res, next) => {
 };
 
 exports.deletePost = (req, res, next) => {
-  deleteImage(req);
-
-  Post.deleteOne({ _id: req.params.id, creator: req.userData.userId })
+  Post.findById(req.params.id)
+    .then(post => {
+      if (post) {
+        deleteImage(req, post);
+      } else {
+        console.log("Post not found during image deletion!");
+      }
+    })
+    .then(() => {
+      return Post.deleteOne({ _id: req.params.id, creator: req.userData.userId })
+    })
     .then(result => {
       console.log(result);
       if (result.n > 0) {
@@ -175,24 +192,14 @@ exports.deletePost = (req, res, next) => {
 };
 
 
-function deleteImage(req) {
-  Post.findById(req.params.id)
-    .then(post => {
-      if (post) {
-        const url = req.protocol + "://" + req.get("host");
-        const imageUrl = post.imagePath;
-        imagePath = imageUrl.replace(url + "/","");
-        imagePath = path.join(__dirname, "../") + imagePath;
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
-        }
-      } else {
-        console.log("Post not found during image deletion!");
-      }
-    })
-    .catch(error => {
-      console.log("Fetching post failed during image deletion!");
-    });
+function deleteImage(req, post) {
+  const url = req.protocol + "://" + req.get("host");
+  const imageUrl = post.imagePath;
+  imagePath = imageUrl.replace(url + "/","");
+  imagePath = path.join(__dirname, "../") + imagePath;
+  if (fs.existsSync(imagePath)) {
+    fs.unlinkSync(imagePath);
+  }
 }
 
 function generateMandelbrot(req) {
