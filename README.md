@@ -8,9 +8,10 @@ MIT License (see LICENSE.txt)
 
 ## Description
 
-- The MEAN stack used is based on the "Angular & NodeJS - The MEAN Stack Guide" course on Udemy (https://www.udemy.com/course/angular-2-and-nodejs-the-practical-guide) by Maximilian Schwarzmüller, and has been adapted for this application by Dr. Cesare Guardino.
-- The core Mandelbrot/Julia Set generator is a C-based code written by Dr. Cesare Guardino.
-- The actual fractal image is generated as a contour plot using Gnuplot (http://www.gnuplot.info). The `gnuplot` program needs to be on the PATH on the backend server.
+- The MEAN stack used is based on the [Angular & NodeJS - The MEAN Stack Guide](https://www.udemy.com/course/angular-2-and-nodejs-the-practical-guide) course on Udemy by Maximilian Schwarzmüller, and has been adapted for this application by Dr. Cesare Guardino.
+- The core Mandelbrot/Julia Set generator is a [C-based code](backend/mandelbrot) written by Dr. Cesare Guardino.
+- The actual fractal image is generated as a contour plot using [Gnuplot](http://www.gnuplot.info). The `gnuplot` program needs to be on the PATH on the backend server.
+- The entire application (including both web front/back-ends and compiled Mandelbrot generator code) were tested on Microsoft Windows 10, Ubuntu Linux 18.04 and even a Raspberry Pi Zero.
 
 ## Development server
 
