@@ -4,7 +4,7 @@
 # Name:          deep_dive.pl
 # Description:   Generates movie of a deep dive into the Mandelbrot set
 # Author:        Cesare Guardino
-# Last modified: 11 April 2023
+# Last modified: 13 May 2023
 #######################################################################################
 
 use bignum;
@@ -14,6 +14,8 @@ use warnings;
 use Getopt::Long;
 use Pod::Usage;
 
+use constant DELTA_X      => 1.75;
+use constant DELTA_Y      => 1.3;
 use constant PREC_80_BIT  => 1.0e-11;  # 1.0e-13 is the limit
 use constant PREC_128_BIT => 1.0e-15;  # 1.0e-16 is the limit
 
@@ -24,7 +26,9 @@ deep_dive.pl
 
 =head1 SYNOPSIS
 
- deep_dive.pl [options] x_c y_c {delta_x} {delta_y}
+ deep_dive.pl [options] x_c y_c
+   or
+ deep_dive.pl [options] x_min x_max y_min y_max
 
  Options:
    -d,  --delay                   Delay between frames in 1/100-th of a second [DEFAULT=20].
@@ -57,20 +61,35 @@ $opt_num         = 100 if not defined $opt_num;
 $opt_verbose     = 0 if not defined $opt_verbose;
 $opt_zoom        = 1.0e10 if not defined $opt_zoom;
 
-die("ERROR: Please specify x_c y_c\n") if scalar(@ARGV) < 2;
+die("ERROR: Please specify (x_c y_c) or (x_min x_max y_min y_max)\n") if scalar(@ARGV) < 2;
 
-my ($x_c, $y_c) = ($ARGV[0], $ARGV[1]);
-my ($delta_x, $delta_y) = scalar(@ARGV) == 4 ? ($ARGV[2], $ARGV[3]) : (1.75, 1.3);
+my ($delta_x, $delta_y) = (DELTA_X, DELTA_Y);
+
+my ($x_c, $y_c);
+if (scalar(@ARGV) == 2)
+{
+    ($x_c, $y_c) = ($ARGV[0], $ARGV[1]);
+}
+elsif (scalar(@ARGV) == 4)
+{
+    my ($x_min, $x_max) = ($ARGV[0], $ARGV[1]);
+    my ($y_min, $y_max) = ($ARGV[2], $ARGV[3]);
+    ($x_c, $y_c) = (0.5 * ($x_min + $x_max), 0.5 * ($y_min + $y_max));
+    $opt_zoom = 2 * $delta_x / ($x_max - $x_min);
+    print "INFO: Zoom = $opt_zoom\n" if $opt_verbose;
+}
 
 foreach my $file (glob('*.csv *.gif *.png'))
 {
     remove_file($file);
 }
 
-my $scale = 1.0;
-my $rate = exp( log(1.0/$opt_zoom) / $opt_num );
-for (my $i = 0; $i < $opt_num; $i++)
+my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
+print "INFO: Rate = $rate\n" if $opt_verbose;
+
+for (my $i = 1; $i <= $opt_num; $i++)
 {
+    my $scale = $rate ** ($i-1);
     my $x_min = $x_c - $scale * $delta_x;
     my $x_max = $x_c + $scale * $delta_x;
     my $y_min = $y_c - $scale * $delta_y;
@@ -95,7 +114,6 @@ for (my $i = 0; $i < $opt_num; $i++)
     my $index = sprintf("%010d", $i);
     my $frame = "frame-" . $index . ".png";
     rename("contours.png", $frame);
-    $scale *= $rate;
 }
 
 my $gif_output = "movie.gif";
