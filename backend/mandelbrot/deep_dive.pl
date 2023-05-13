@@ -7,7 +7,7 @@
 # Last modified: 13 May 2023
 #######################################################################################
 
-use bignum;
+use bignum ( p => -80 );
 use strict;
 use warnings;
 
