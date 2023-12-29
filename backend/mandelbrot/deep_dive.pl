@@ -4,10 +4,10 @@
 # Name:          deep_dive.pl
 # Description:   Generates movie of a deep dive into the Mandelbrot set
 # Author:        Cesare Guardino
-# Last modified: 13 May 2023
+# Last modified: 29 December 2023
 #######################################################################################
 
-use bignum ( p => -80 );
+use bignum;
 use strict;
 use warnings;
 
@@ -26,9 +26,9 @@ deep_dive.pl
 
 =head1 SYNOPSIS
 
- deep_dive.pl [options] x_c y_c
+ deep_dive.pl [options] -- x_c y_c
    or
- deep_dive.pl [options] x_min x_max y_min y_max
+ deep_dive.pl [options] -- x_min x_max y_min y_max
 
  Options:
    -d,  --delay                   Delay between frames in 1/100-th of a second [DEFAULT=20].
@@ -68,12 +68,12 @@ my ($delta_x, $delta_y) = (DELTA_X, DELTA_Y);
 my ($x_c, $y_c);
 if (scalar(@ARGV) == 2)
 {
-    ($x_c, $y_c) = ($ARGV[0], $ARGV[1]);
+    ($x_c, $y_c) = (1.0*$ARGV[0], 1.0*$ARGV[1]);
 }
 elsif (scalar(@ARGV) == 4)
 {
-    my ($x_min, $x_max) = ($ARGV[0], $ARGV[1]);
-    my ($y_min, $y_max) = ($ARGV[2], $ARGV[3]);
+    my ($x_min, $x_max) = (1.0*$ARGV[0], 1.0*$ARGV[1]);
+    my ($y_min, $y_max) = (1.0*$ARGV[2], 1.0*$ARGV[3]);
     ($x_c, $y_c) = (0.5 * ($x_min + $x_max), 0.5 * ($y_min + $y_max));
     $opt_zoom = 2 * $delta_x / ($x_max - $x_min);
     print "INFO: Zoom = $opt_zoom\n" if $opt_verbose;
@@ -87,9 +87,10 @@ foreach my $file (glob('*.csv *.gif *.png'))
 my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
 print "INFO: Rate = $rate\n" if $opt_verbose;
 
-for (my $i = 1; $i <= $opt_num; $i++)
+for (my $i = 0; $i < $opt_num; $i++)
 {
-    my $scale = $rate ** ($i-1);
+    print "INFO: Iteration = $i\n" if $opt_verbose;
+    my $scale = $rate ** $i;
     my $x_min = $x_c - $scale * $delta_x;
     my $x_max = $x_c + $scale * $delta_x;
     my $y_min = $y_c - $scale * $delta_y;
@@ -103,6 +104,17 @@ for (my $i = 1; $i <= $opt_num; $i++)
     elsif (abs($x_max - $x_min) < PREC_80_BIT or abs($y_max - $y_min) < PREC_80_BIT)
     {
         $bit_accuracy = "80";
+    }
+
+    $x_min = format_bignum($x_min);
+    $x_max = format_bignum($x_max);
+    $y_min = format_bignum($y_min);
+    $y_max = format_bignum($y_max);
+
+    if ($x_min eq $x_max or $y_min eq $y_max)
+    {
+        print "INFO: Reached identical ranges, exiting loop\n" if $opt_verbose;
+        last;
     }
 
     my $mandelbrot_exe = "mandelbrot-" . $bit_accuracy;
@@ -130,4 +142,9 @@ sub run_command
 sub remove_file
 {
     unlink($_[0]) if -f $_[0];
+}
+
+sub format_bignum
+{
+    return sprintf("%.80f", $_[0]);
 }
