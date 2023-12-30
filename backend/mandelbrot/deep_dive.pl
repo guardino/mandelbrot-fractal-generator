@@ -87,7 +87,7 @@ foreach my $file (glob('*.csv *.gif *.png'))
 my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
 print "INFO: Rate = $rate\n" if $opt_verbose;
 
-for (my $i = 0; $i < $opt_num; $i++)
+for (my $i = $opt_num-1; $i >= 0; $i--)
 {
     print "INFO: Iteration = $i\n" if $opt_verbose;
     my $scale = $rate ** $i;
