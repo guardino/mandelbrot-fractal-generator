@@ -4,7 +4,7 @@
 # Name:          deep_dive.pl
 # Description:   Generates movie of a deep dive into the Mandelbrot set
 # Author:        Cesare Guardino
-# Last modified: 29 December 2023
+# Last modified: 30 December 2023
 #######################################################################################
 
 use bignum;
@@ -74,8 +74,22 @@ elsif (scalar(@ARGV) == 4)
 {
     my ($x_min, $x_max) = (1.0*$ARGV[0], 1.0*$ARGV[1]);
     my ($y_min, $y_max) = (1.0*$ARGV[2], 1.0*$ARGV[3]);
+
+    my $dx = ($x_max - $x_min);
+    my $dy = ($y_max - $y_min);
+    my $aspect_ratio = $dx / $dy;
+    print "INFO: Aspect ratio = $aspect_ratio\n" if $opt_verbose;
+    if ($aspect_ratio < 1)
+    {
+        $delta_x = $aspect_ratio * $delta_y;
+    }
+    else
+    {
+        $delta_y = $delta_x / $aspect_ratio;
+    }
+
     ($x_c, $y_c) = (0.5 * ($x_min + $x_max), 0.5 * ($y_min + $y_max));
-    $opt_zoom = 2 * $delta_x / ($x_max - $x_min);
+    $opt_zoom = 2 * $delta_x / $dx;
     print "INFO: Zoom = $opt_zoom\n" if $opt_verbose;
 }
 
@@ -113,8 +127,8 @@ for (my $i = $opt_num-1; $i >= 0; $i--)
 
     if ($x_min eq $x_max or $y_min eq $y_max)
     {
-        print "INFO: Reached identical ranges, exiting loop\n" if $opt_verbose;
-        last;
+        print "INFO: Identical ranges detected, skipping iteration\n" if $opt_verbose;
+        next;
     }
 
     my $mandelbrot_exe = "mandelbrot-" . $bit_accuracy;
