@@ -132,6 +132,13 @@ print "\n" if $opt_verbose;
 my $gif_output = "movie.gif";
 run_command("convert -delay $opt_delay frame-*.png -loop 0 $gif_output");
 
+if (-e $gif_output)
+{
+    my $mp4_output = "movie.mp4";
+    # See https://unix.stackexchange.com/questions/40638/how-to-do-i-convert-an-animated-gif-to-an-mp4-or-mv4-on-the-command-line
+    run_command("ffmpeg -i $gif_output -movflags faststart -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" $mp4_output");
+}
+
 sub generate_frame
 {
     my ($i) = @_;
