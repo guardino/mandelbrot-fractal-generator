@@ -4,7 +4,7 @@
 # Name:          deep_dive.pl
 # Description:   Generates movie of a deep dive into the Mandelbrot set
 # Author:        Cesare Guardino
-# Last modified: 31 December 2023
+# Last modified: 2 January 2024
 #######################################################################################
 
 use bignum ( p => -80 );
@@ -99,6 +99,8 @@ elsif (scalar(@ARGV) == 4)
     }
 
     ($x_c, $y_c) = (0.5 * ($x_min + $x_max), 0.5 * ($y_min + $y_max));
+    print "INFO: x_c = $x_c\n" if $opt_verbose;
+    print "INFO: y_c = $y_c\n" if $opt_verbose;
     $opt_zoom = 2 * $delta_x / $dx;
     print "INFO: Zoom = $opt_zoom\n" if $opt_verbose;
 }
