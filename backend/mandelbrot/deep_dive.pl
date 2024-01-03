@@ -4,13 +4,14 @@
 # Name:          deep_dive.pl
 # Description:   Generates movie of a deep dive into the Mandelbrot set
 # Author:        Cesare Guardino
-# Last modified: 2 January 2024
+# Last modified: 3 January 2024
 #######################################################################################
 
 use bignum ( p => -80 );
 use strict;
 use warnings;
 
+use File::Path;
 use Getopt::Long;
 use Pod::Usage;
 
@@ -183,11 +184,16 @@ sub generate_frame
     my $cmd = "$mandelbrot_exe $opt_extra $x_min $x_max $y_min $y_max";
     $cmd .= " 0.0 0.0";
 
-    run_command($cmd);
-
     my $index = sprintf("%010d", $i);
-    my $frame = "frame-" . $index . ".png";
-    rename("contours.png", $frame);
+    my $name = "frame-$index";
+    rmtree($name) if -d $name;
+    mkdir($name);
+    die("ERROR: Temporary directory $name does not exist\n") if not -d $name;
+    chdir($name);
+    run_command($cmd);
+    rename("contours.png", "../$name.png");
+    chdir("..");
+    rmtree($name);
 }
 sub run_command
 {
