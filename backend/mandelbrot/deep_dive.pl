@@ -195,6 +195,7 @@ sub generate_frame
     chdir("..");
     rmtree($name);
 }
+
 sub run_command
 {
     my ($cmd) = @_;
