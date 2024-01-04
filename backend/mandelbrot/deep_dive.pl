@@ -4,7 +4,7 @@
 # Name:          deep_dive.pl
 # Description:   Generates movie of a deep dive into the Mandelbrot set
 # Author:        Cesare Guardino
-# Last modified: 3 January 2024
+# Last modified: 4 January 2024
 #######################################################################################
 
 use bignum ( p => -80 );
@@ -17,8 +17,6 @@ use Pod::Usage;
 
 use constant DELTA_X      => 1.75;
 use constant DELTA_Y      => 1.3;
-use constant PREC_80_BIT  => 1.0e-11;  # 1.0e-13 is the limit
-use constant PREC_128_BIT => 1.0e-15;  # 1.0e-16 is the limit
 use constant TOLERANCE    => 1.0e-6;
 
 # POD {{{1
@@ -37,7 +35,9 @@ deep_dive.pl
    -e,  --extra                   Extra options to pass to mandelbrot program [DEFAULT=-c 64 -f 1 -i 2048 -s 1024 -t 3]
    -h,  --help                    Help usage message
    -n,  --num                     Number of frames in animation [DEFAULT=100]
+   -p,  --processes               Number of parallel processes [DEFAULT=1]
    -r,  --reverse                 Reverse frame generation [DEFAULT=false]
+   -v,  --verbose                 Print extra information and progress [DEFAULT=false]
    -z,  --zoom                    Final zoom level [DEFAULT=1.0e10]
 
 =head1 DESCRIPTION
@@ -47,12 +47,13 @@ B<deep_dive.pl> Generates movie of a deep dive into the Mandelbrot set
 =cut
 # POD }}}1
 
-my ($opt_delay, $opt_extra, $opt_help, $opt_num, $opt_reverse, $opt_verbose, $opt_zoom) = undef;
+my ($opt_delay, $opt_extra, $opt_help, $opt_num, $opt_processes, $opt_reverse, $opt_verbose, $opt_zoom) = undef;
 GetOptions(
             'delay|d=s'                   => \$opt_delay,
             'extra|e=s'                   => \$opt_extra,
             'help|?'                      => \$opt_help,
             "num|n=i"                     => \$opt_num,
+            "proc|p=i"                    => \$opt_processes,
             "reverse|r"                   => \$opt_reverse,
             "verbose|v"                   => \$opt_verbose,
             'zoom|z=s'                    => \$opt_zoom,
@@ -62,6 +63,7 @@ pod2usage(1) if $opt_help;
 $opt_delay       = 20 if not defined $opt_delay;
 $opt_extra       = "-c 64 -f 1 -i 2048 -s 1024 -t 3" if not defined $opt_extra;
 $opt_num         = 100 if not defined $opt_num;
+$opt_processes   = 1 if not defined $opt_processes;
 $opt_reverse     = 0 if not defined $opt_reverse;
 $opt_verbose     = 0 if not defined $opt_verbose;
 $opt_zoom        = 1.0e10 if not defined $opt_zoom;
@@ -115,6 +117,8 @@ my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
 print "INFO: Rate = $rate\n" if $opt_verbose;
 print "INFO: Beginning iterations ...\n" if $opt_verbose;
 
+my @jobs = ();
+
 if ($opt_reverse)
 {
     for (my $i = $opt_num-1; $i >= 0; $i--)
@@ -146,6 +150,8 @@ sub generate_frame
 {
     my ($i) = @_;
 
+    check_jobs($i);
+
     print "\n" if $opt_verbose;
     print "INFO: Iteration = $i\n" if $opt_verbose;
     my $scale = $rate ** $i;
@@ -153,16 +159,6 @@ sub generate_frame
     my $x_max = $x_c + $scale * $delta_x;
     my $y_min = $y_c - $scale * $delta_y;
     my $y_max = $y_c + $scale * $delta_y;
-
-    my $bit_accuracy = "64";
-    if (abs($x_max - $x_min) < PREC_128_BIT or abs($y_max - $y_min) < PREC_128_BIT)
-    {
-        $bit_accuracy = "128";
-    }
-    elsif (abs($x_max - $x_min) < PREC_80_BIT or abs($y_max - $y_min) < PREC_80_BIT)
-    {
-        $bit_accuracy = "80";
-    }
 
     # Check aspect ratio - included here as sometimes this comes out slightly wrong:
     my $dx = ($x_max - $x_min);
@@ -180,20 +176,33 @@ sub generate_frame
         next;
     }
 
-    my $mandelbrot_exe = "mandelbrot-" . $bit_accuracy;
-    my $cmd = "$mandelbrot_exe $opt_extra $x_min $x_max $y_min $y_max";
-    $cmd .= " 0.0 0.0";
+    run_command("start perl fractal.pl -i $i -e \"$opt_extra\" -- $x_min $x_max $y_min $y_max");
+}
 
-    my $index = sprintf("%010d", $i);
-    my $name = "frame-$index";
-    rmtree($name) if -d $name;
-    mkdir($name);
-    die("ERROR: Temporary directory $name does not exist\n") if not -d $name;
-    chdir($name);
-    run_command($cmd);
-    rename("contours.png", "../$name.png");
-    chdir("..");
-    rmtree($name);
+sub check_jobs
+{
+    my ($i) = @_;
+
+    push(@jobs, $i);
+    print "@jobs\n";
+
+    while (scalar(@jobs) > $opt_processes)
+    {
+        foreach my $j (@jobs)
+        {
+            my $index = sprintf("%010d", $j);
+            my $name = "frame-$index";
+            if (-e "$name.png" and not -d "$name" and not -d "$name/$name.lok")
+            {
+                my $k = 0;
+                $k++ until $jobs[$k] eq $j;
+                splice(@jobs, $k, 1);
+                print "@jobs\n";
+            }
+        }
+
+        sleep(10);
+    }
 }
 
 sub run_command
