@@ -12,6 +12,7 @@ use strict;
 use warnings;
 
 use File::Path;
+use FindBin;
 use Getopt::Long;
 use Pod::Usage;
 
@@ -176,7 +177,7 @@ sub generate_frame
         next;
     }
 
-    run_command("start /b perl fractal.pl -i $i -e \"$opt_extra\" -- $x_min $x_max $y_min $y_max");
+    run_command("start /b perl $FindBin::Bin/fractal.pl -i $i -e \"$opt_extra\" -- $x_min $x_max $y_min $y_max");
 }
 
 sub check_jobs
