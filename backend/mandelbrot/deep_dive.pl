@@ -176,7 +176,7 @@ sub generate_frame
         next;
     }
 
-    run_command("start perl fractal.pl -i $i -e \"$opt_extra\" -- $x_min $x_max $y_min $y_max");
+    run_command("start /b perl fractal.pl -i $i -e \"$opt_extra\" -- $x_min $x_max $y_min $y_max");
 }
 
 sub check_jobs
