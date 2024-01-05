@@ -109,7 +109,7 @@ elsif (scalar(@ARGV) == 4)
     print "INFO: Zoom = $opt_zoom\n" if $opt_verbose;
 }
 
-foreach my $file (glob('*.csv *.gif *.png'))
+foreach my $file (glob('*.csv *.gif *.mp4 *.plt *.png'))
 {
     remove_file($file);
 }
@@ -119,23 +119,25 @@ print "INFO: Rate = $rate\n" if $opt_verbose;
 print "INFO: Beginning iterations ...\n" if $opt_verbose;
 
 my @jobs = ();
+my @skipped = ();
 
 if ($opt_reverse)
 {
     for (my $i = $opt_num-1; $i >= 0; $i--)
     {
-        generate_frame($i);
+        next if not generate_frame($i);
     }
 }
 else
 {
     for (my $i = 0; $i < $opt_num; $i++)
     {
-        generate_frame($i);
+        next if not generate_frame($i);
     }
 }
 
-print "\n" if $opt_verbose;
+check_jobs(1);
+check_frames();
 
 my $gif_output = "movie.gif";
 run_command("convert -delay $opt_delay frame-*.png -loop 0 $gif_output");
@@ -151,10 +153,8 @@ sub generate_frame
 {
     my ($i) = @_;
 
-    check_jobs($i);
-
     print "\n" if $opt_verbose;
-    print "INFO: Iteration = $i\n" if $opt_verbose;
+    print "INFO: Iteration = $i\n";
     my $scale = $rate ** $i;
     my $x_min = $x_c - $scale * $delta_x;
     my $x_max = $x_c + $scale * $delta_x;
@@ -164,8 +164,12 @@ sub generate_frame
     # Check aspect ratio - included here as sometimes this comes out slightly wrong:
     my $dx = ($x_max - $x_min);
     my $dy = ($y_max - $y_min);
+
+    my $zoom = 2 * $delta_x / $dx;
+    print "INFO: Current zoom = $zoom\n" if $opt_verbose;
     my $aspect_ratio = $dx / $dy;
-    print "INFO: Aspect ratio = $aspect_ratio\n" if $opt_verbose;
+    print "INFO: Current aspect ratio = $aspect_ratio\n" if $opt_verbose;
+
     if ( abs($aspect_ratio-$expected_aspect_ratio) > TOLERANCE )
     {
         print "WARNING: Aspect ratio for iteration $i does not match expected $expected_aspect_ratio\n";
@@ -174,21 +178,34 @@ sub generate_frame
     if ($x_min eq $x_max or $y_min eq $y_max)
     {
         print "INFO: Identical ranges detected for iteration $i, skipping iteration\n";
-        next;
+        push(@skipped, $i);
+        return 0;
     }
 
+    check_jobs(0);
+    push(@jobs, $i);
     run_command("start /b perl $FindBin::Bin/fractal.pl -i $i -e \"$opt_extra\" -- $x_min $x_max $y_min $y_max");
+
+    return 1;
 }
 
 sub check_jobs
 {
-    my ($i) = @_;
+    my ($end) = @_;
 
     print "INFO: Current frame job indices: @jobs\n" if $opt_verbose;
-    push(@jobs, $i);
 
-    while (scalar(@jobs) > $opt_processes)
+    while (1)
     {
+        if ($end)
+        {
+            last if (scalar(@jobs) == 0);
+        }
+        else
+        {
+            last if (scalar(@jobs) < $opt_processes);
+        }
+
         foreach my $j (@jobs)
         {
             my $index = sprintf("%010d", $j);
@@ -196,13 +213,47 @@ sub check_jobs
             if (-e "$name.png" and not -d "$name" and not -d "$name/$name.lok")
             {
                 my $k = 0;
-                $k++ until $jobs[$k] eq $j;
+                $k++ until ($k == scalar(@jobs) or $jobs[$k] eq $j);
+                die("ERROR: Error in search for completed job with index $k\n") if $k == $opt_num;
                 splice(@jobs, $k, 1);
             }
         }
 
-        sleep(10);
+        sleep(2);
     }
+}
+
+sub check_frames
+{
+    print "\n" if $opt_verbose;
+
+    @skipped = sort(@skipped);
+
+    my @missing = ();
+    for (my $i = 0; $i < $opt_num; $i++)
+    {
+        my $index = sprintf("%010d", $i);
+        my $name = "frame-$index";
+        my $image = "$name.png";
+
+        next if is_skipped($i);
+        push(@missing, $i) if not -e $image;
+        print "INFO: $image does not exist\n" if not -e $image;
+    }
+
+    die("ERROR: Some frames are missing, no movie will be generated. Exiting.\n") if scalar(@missing) > 0;
+
+    print "\n" if $opt_verbose;
+}
+
+sub is_skipped
+{
+    my ($i) = @_;
+
+    my $k = 0;
+    $k++ until ($k == scalar(@skipped) or $skipped[$k] eq $i);
+
+    return $k < scalar(@skipped);
 }
 
 sub run_command
