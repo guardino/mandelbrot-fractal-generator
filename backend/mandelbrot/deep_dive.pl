@@ -4,7 +4,7 @@
 # Name:          deep_dive.pl
 # Description:   Generates movie of a deep dive into the Mandelbrot set
 # Author:        Cesare Guardino
-# Last modified: 4 January 2024
+# Last modified: 5 January 2024
 #######################################################################################
 
 use bignum ( p => -80 );
@@ -184,8 +184,8 @@ sub check_jobs
 {
     my ($i) = @_;
 
+    print "INFO: Current frame job indices: @jobs\n" if $opt_verbose;
     push(@jobs, $i);
-    print "@jobs\n";
 
     while (scalar(@jobs) > $opt_processes)
     {
@@ -198,7 +198,6 @@ sub check_jobs
                 my $k = 0;
                 $k++ until $jobs[$k] eq $j;
                 splice(@jobs, $k, 1);
-                print "@jobs\n";
             }
         }
 
