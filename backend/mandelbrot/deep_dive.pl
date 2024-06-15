@@ -51,7 +51,7 @@ B<deep_dive.pl> Generates movie of a deep dive into the Mandelbrot set
 
 my ($opt_delay, $opt_extra, $opt_help, $opt_movie, $opt_num, $opt_processes, $opt_reverse, $opt_verbose, $opt_zoom) = undef;
 GetOptions(
-            'delay|d=s'                   => \$opt_delay,
+            'delay|d=i'                   => \$opt_delay,
             'extra|e=s'                   => \$opt_extra,
             'help|?'                      => \$opt_help,
             'movie|m'                     => \$opt_movie,
