@@ -4,7 +4,7 @@
 # Name:          deep_dive.pl
 # Description:   Generates movie of a deep dive into the Mandelbrot set
 # Author:        Cesare Guardino
-# Last modified: 5 January 2024
+# Last modified: 16 June 2024
 #######################################################################################
 
 use bignum ( p => -80 );
@@ -35,6 +35,7 @@ deep_dive.pl
    -d,  --delay                   Delay between frames in 1/100-th of a second [DEFAULT=20].
    -e,  --extra                   Extra options to pass to mandelbrot program [DEFAULT=-c 64 -f 1 -i 2048 -s 1024 -t 3]
    -h,  --help                    Help usage message
+   -m,  --movie                   Generate movie only (requires frames to exist)
    -n,  --num                     Number of frames in animation [DEFAULT=100]
    -p,  --processes               Number of parallel processes [DEFAULT=1]
    -r,  --reverse                 Reverse frame generation [DEFAULT=false]
@@ -48,11 +49,12 @@ B<deep_dive.pl> Generates movie of a deep dive into the Mandelbrot set
 =cut
 # POD }}}1
 
-my ($opt_delay, $opt_extra, $opt_help, $opt_num, $opt_processes, $opt_reverse, $opt_verbose, $opt_zoom) = undef;
+my ($opt_delay, $opt_extra, $opt_help, $opt_movie, $opt_num, $opt_processes, $opt_reverse, $opt_verbose, $opt_zoom) = undef;
 GetOptions(
             'delay|d=s'                   => \$opt_delay,
             'extra|e=s'                   => \$opt_extra,
             'help|?'                      => \$opt_help,
+            'movie|m'                     => \$opt_movie,
             "num|n=i"                     => \$opt_num,
             "proc|p=i"                    => \$opt_processes,
             "reverse|r"                   => \$opt_reverse,
@@ -63,11 +65,18 @@ pod2usage(1) if $opt_help;
 
 $opt_delay       = 20 if not defined $opt_delay;
 $opt_extra       = "-c 64 -f 1 -i 2048 -s 1024 -t 3" if not defined $opt_extra;
+$opt_movie       = 0 if not defined $opt_movie;
 $opt_num         = 100 if not defined $opt_num;
 $opt_processes   = 1 if not defined $opt_processes;
 $opt_reverse     = 0 if not defined $opt_reverse;
 $opt_verbose     = 0 if not defined $opt_verbose;
 $opt_zoom        = 1.0e10 if not defined $opt_zoom;
+
+if ($opt_movie)
+{
+    generate_movie($opt_delay);
+    exit 0;
+}
 
 die("ERROR: Please specify (x_c y_c) or (x_min x_max y_min y_max)\n") if scalar(@ARGV) < 2;
 
@@ -109,7 +118,7 @@ elsif (scalar(@ARGV) == 4)
     print "INFO: Zoom = $opt_zoom\n" if $opt_verbose;
 }
 
-foreach my $file (glob('*.csv *.gif *.mp4 *.plt *.png'))
+foreach my $file (glob('*.csv *.plt *.png'))
 {
     remove_file($file);
 }
@@ -139,14 +148,26 @@ else
 check_jobs(1);
 check_frames();
 
-my $gif_output = "movie.gif";
-run_command("convert -delay $opt_delay frame-*.png -loop 0 $gif_output");
+generate_movie($opt_delay);
 
-if (-e $gif_output)
+sub generate_movie
 {
-    my $mp4_output = "movie.mp4";
-    # See https://unix.stackexchange.com/questions/40638/how-to-do-i-convert-an-animated-gif-to-an-mp4-or-mv4-on-the-command-line
-    run_command("ffmpeg -i $gif_output -movflags faststart -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" $mp4_output");
+    my ($delay) = @_;
+
+    my $gif_output = "movie-$delay.gif";
+    remove_file($gif_output);
+
+    print "INFO: Generating $gif_output ...\n" if $opt_verbose;
+    run_command("convert -delay $delay frame-*.png -loop 0 $gif_output");
+    
+    if (-e $gif_output)
+    {
+        my $mp4_output = "movie-$delay.mp4";
+        print "INFO: Generating $mp4_output ...\n" if $opt_verbose;
+        remove_file($mp4_output);
+        # See https://unix.stackexchange.com/questions/40638/how-to-do-i-convert-an-animated-gif-to-an-mp4-or-mv4-on-the-command-line
+        run_command("ffmpeg -i $gif_output -movflags faststart -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" $mp4_output");
+    }
 }
 
 sub generate_frame
