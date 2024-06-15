@@ -32,7 +32,7 @@ deep_dive.pl
  deep_dive.pl [options] -- x_min x_max y_min y_max
 
  Options:
-   -d,  --delay                   Delay between frames in 1/100-th of a second [DEFAULT=20].
+   -d,  --delay                   Delay between frames in 1/100-th of a second [DEFAULT=10].
    -e,  --extra                   Extra options to pass to mandelbrot program [DEFAULT=-c 64 -f 1 -i 2048 -s 1024 -t 3]
    -h,  --help                    Help usage message
    -m,  --movie                   Generate movie only (requires frames to exist)
@@ -63,7 +63,7 @@ GetOptions(
           ) or pod2usage(2);
 pod2usage(1) if $opt_help;
 
-$opt_delay       = 20 if not defined $opt_delay;
+$opt_delay       = 10 if not defined $opt_delay;
 $opt_extra       = "-c 64 -f 1 -i 2048 -s 1024 -t 3" if not defined $opt_extra;
 $opt_movie       = 0 if not defined $opt_movie;
 $opt_num         = 100 if not defined $opt_num;
@@ -157,13 +157,17 @@ sub generate_movie
     my $gif_output = "movie-$delay.gif";
     remove_file($gif_output);
 
-    print "INFO: Generating $gif_output ...\n" if $opt_verbose;
+    print "INFO: Generating $gif_output ...\n";
+
+    my $fps = sprintf("%.3f", 100 / $opt_delay);
+    print "INFO: Frames per second equivalent is $fps\n";
+
     run_command("convert -delay $delay frame-*.png -loop 0 $gif_output");
     
     if (-e $gif_output)
     {
         my $mp4_output = "movie-$delay.mp4";
-        print "INFO: Generating $mp4_output ...\n" if $opt_verbose;
+        print "INFO: Generating $mp4_output ...\n";
         remove_file($mp4_output);
         # See https://unix.stackexchange.com/questions/40638/how-to-do-i-convert-an-animated-gif-to-an-mp4-or-mv4-on-the-command-line
         run_command("ffmpeg -i $gif_output -movflags faststart -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" $mp4_output");
