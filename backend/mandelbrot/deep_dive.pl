@@ -209,7 +209,8 @@ sub generate_frame
 
     check_jobs(0);
     push(@jobs, $i);
-    run_command("start /b perl $FindBin::Bin/fractal.pl -i $i -e \"$opt_extra\" -- $x_min $x_max $y_min $y_max");
+    my $verbose_str = $opt_verbose ? '-v' : '';
+    run_command("start /b perl $FindBin::Bin/fractal.pl -i $i $verbose_str -e \"$opt_extra\" -- $x_min $x_max $y_min $y_max");
 
     return 1;
 }
