@@ -33,11 +33,11 @@ deep_dive.pl
 
  Options:
    -d,  --delay                   Delay between frames in 1/100-th of a second [DEFAULT=10].
-   -e,  --extra                   Extra options to pass to mandelbrot program [DEFAULT=-c 64 -f 1 -i 2048 -s 1024 -t 3]
+   -e,  --extra                   Extra options to pass to mandelbrot program [DEFAULT=-c 64 -f 1 -i 4096 -s 1024 -t 3]
    -h,  --help                    Help usage message
    -m,  --movie                   Generate movie only (requires frames to exist)
-   -n,  --num                     Number of frames in animation [DEFAULT=100]
-   -p,  --processes               Number of parallel processes [DEFAULT=1]
+   -n,  --num                     Number of frames in animation [DEFAULT=512]
+   -p,  --processes               Number of parallel processes [DEFAULT=4]
    -r,  --reverse                 Reverse frame generation [DEFAULT=false]
    -v,  --verbose                 Print extra information and progress [DEFAULT=false]
    -z,  --zoom                    Final zoom level [DEFAULT=1.0e10]
@@ -64,10 +64,10 @@ GetOptions(
 pod2usage(1) if $opt_help;
 
 $opt_delay       = 10 if not defined $opt_delay;
-$opt_extra       = "-c 64 -f 1 -i 2048 -s 1024 -t 3" if not defined $opt_extra;
+$opt_extra       = "-c 64 -f 1 -i 4096 -s 1024 -t 3" if not defined $opt_extra;
 $opt_movie       = 0 if not defined $opt_movie;
-$opt_num         = 100 if not defined $opt_num;
-$opt_processes   = 1 if not defined $opt_processes;
+$opt_num         = 512 if not defined $opt_num;
+$opt_processes   = 4 if not defined $opt_processes;
 $opt_reverse     = 0 if not defined $opt_reverse;
 $opt_verbose     = 0 if not defined $opt_verbose;
 $opt_zoom        = 1.0e10 if not defined $opt_zoom;
