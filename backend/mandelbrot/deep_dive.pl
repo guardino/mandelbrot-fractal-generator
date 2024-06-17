@@ -37,7 +37,7 @@ deep_dive.pl
    -h,  --help                    Help usage message
    -i,  --iteration               Generate frame for specified iteration only [DEFAULT=-1 --> generate all frames]
    -m,  --movie                   Generate movie only (requires frames to exist)
-   -n,  --num                     Number of frames in animation [DEFAULT=512]
+   -n,  --num                     Number of frames in animation (if omitted will be auto-calculated)
    -p,  --processes               Number of parallel processes [DEFAULT=4]
    -r,  --reverse                 Reverse frame generation [DEFAULT=false]
    -v,  --verbose                 Print extra information and progress [DEFAULT=false]
@@ -69,11 +69,11 @@ $opt_delay       = 10 if not defined $opt_delay;
 $opt_extra       = "-c 64 -f 1 -i 4096 -s 1024 -t 3" if not defined $opt_extra;
 $opt_iteration   = -1 if not defined $opt_iteration;
 $opt_movie       = 0 if not defined $opt_movie;
-$opt_num         = 512 if not defined $opt_num;
 $opt_processes   = 4 if not defined $opt_processes;
 $opt_reverse     = 0 if not defined $opt_reverse;
 $opt_verbose     = 0 if not defined $opt_verbose;
 $opt_zoom        = 1.0e10 if not defined $opt_zoom;
+$opt_num         = get_num($opt_zoom) if not defined $opt_num;
 
 if ($opt_movie)
 {
@@ -85,6 +85,8 @@ die("ERROR: Please specify (x_c y_c) or (x_min x_max y_min y_max)\n") if scalar(
 die("ERROR: Iteration must be between 0 and " . ($opt_num-1) . "\n") if $opt_iteration < -1 or $opt_iteration > $opt_num-1;
 
 my ($delta_x, $delta_y) = (DELTA_X, DELTA_Y);
+
+print "INFO: Number of frames = $opt_num\n";
 
 my ($x_c, $y_c);
 my $expected_aspect_ratio;
@@ -181,6 +183,21 @@ sub generate_movie
         # See https://unix.stackexchange.com/questions/40638/how-to-do-i-convert-an-animated-gif-to-an-mp4-or-mv4-on-the-command-line
         run_command("ffmpeg -i $gif_output -movflags faststart -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" $mp4_output");
     }
+}
+
+sub get_num
+{
+    my ($zoom) = @_;
+
+    # Scale point: zoom of 1e15 requires 500 frames
+    return sprintf("%d", log10($zoom) * 500 / 15.0);
+}
+
+sub log10
+{
+    my $n = shift;
+
+    return log($n) / log(10);
 }
 
 sub frame_exists
