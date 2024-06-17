@@ -4,7 +4,7 @@
 # Name:          deep_dive.pl
 # Description:   Generates movie of a deep dive into the Mandelbrot set
 # Author:        Cesare Guardino
-# Last modified: 16 June 2024
+# Last modified: 17 June 2024
 #######################################################################################
 
 use bignum ( p => -80 );
@@ -35,6 +35,7 @@ deep_dive.pl
    -d,  --delay                   Delay between frames in 1/100-th of a second [DEFAULT=10].
    -e,  --extra                   Extra options to pass to mandelbrot program [DEFAULT=-c 64 -f 1 -i 4096 -s 1024 -t 3]
    -h,  --help                    Help usage message
+   -i,  --iteration               Generate frame for specified iteration only [DEFAULT=-1 --> generate all frames]
    -m,  --movie                   Generate movie only (requires frames to exist)
    -n,  --num                     Number of frames in animation [DEFAULT=512]
    -p,  --processes               Number of parallel processes [DEFAULT=4]
@@ -49,11 +50,12 @@ B<deep_dive.pl> Generates movie of a deep dive into the Mandelbrot set
 =cut
 # POD }}}1
 
-my ($opt_delay, $opt_extra, $opt_help, $opt_movie, $opt_num, $opt_processes, $opt_reverse, $opt_verbose, $opt_zoom) = undef;
+my ($opt_delay, $opt_extra, $opt_help, $opt_iteration, $opt_movie, $opt_num, $opt_processes, $opt_reverse, $opt_verbose, $opt_zoom) = undef;
 GetOptions(
             'delay|d=i'                   => \$opt_delay,
             'extra|e=s'                   => \$opt_extra,
             'help|?'                      => \$opt_help,
+            'iteration|i=i'               => \$opt_iteration,
             'movie|m'                     => \$opt_movie,
             "num|n=i"                     => \$opt_num,
             "proc|p=i"                    => \$opt_processes,
@@ -65,6 +67,7 @@ pod2usage(1) if $opt_help;
 
 $opt_delay       = 10 if not defined $opt_delay;
 $opt_extra       = "-c 64 -f 1 -i 4096 -s 1024 -t 3" if not defined $opt_extra;
+$opt_iteration   = -1 if not defined $opt_iteration;
 $opt_movie       = 0 if not defined $opt_movie;
 $opt_num         = 512 if not defined $opt_num;
 $opt_processes   = 4 if not defined $opt_processes;
@@ -79,6 +82,7 @@ if ($opt_movie)
 }
 
 die("ERROR: Please specify (x_c y_c) or (x_min x_max y_min y_max)\n") if scalar(@ARGV) < 2;
+die("ERROR: Iteration must be between 0 and " . ($opt_num-1) . "\n") if $opt_iteration < -1 or $opt_iteration > $opt_num-1;
 
 my ($delta_x, $delta_y) = (DELTA_X, DELTA_Y);
 
@@ -125,6 +129,14 @@ foreach my $file (glob('*.csv *.plt *.png'))
 
 my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
 print "INFO: Rate = $rate\n" if $opt_verbose;
+
+if ($opt_iteration >= 0)
+{
+    print "INFO: Generating frame $opt_iteration only ...\n";
+    generate_frame($opt_iteration);
+    exit 0;
+}
+
 print "INFO: Beginning iterations ...\n" if $opt_verbose;
 
 my @jobs = ();
