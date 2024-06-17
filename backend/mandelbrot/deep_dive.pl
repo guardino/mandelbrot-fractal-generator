@@ -170,8 +170,10 @@ sub generate_movie
 
     print "INFO: Generating $gif_output ...\n";
 
-    my $fps = sprintf("%.3f", 100 / $opt_delay);
+    my $fps = sprintf("%.1f", 100 / $opt_delay);
+    my $movie_length = sprintf("%.1f", $opt_num / $fps);
     print "INFO: Frames per second equivalent is $fps\n";
+    print "INFO: Expected length of movie is $movie_length seconds\n";
 
     run_command("convert -delay $delay frame-*.png -loop 0 $gif_output");
     
