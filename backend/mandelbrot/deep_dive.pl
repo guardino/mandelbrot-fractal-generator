@@ -35,9 +35,9 @@ deep_dive.pl
    -d,  --delay                   Delay between frames in 1/100-th of a second [DEFAULT=10].
    -e,  --extra                   Extra options to pass to mandelbrot program [DEFAULT=-c 64 -f 1 -i 4096 -s 1024 -t 3]
    -h,  --help                    Help usage message
-   -i,  --iteration               Generate frame for specified iteration only [DEFAULT=-1 --> generate all frames]
+   -i,  --iteration               Generate frame for specified iteration only [if omitted will generate all frames]
    -m,  --movie                   Generate movie only (requires frames to exist)
-   -n,  --num                     Number of frames in animation (if omitted will be auto-calculated)
+   -n,  --num                     Number of frames in animation [if omitted will be auto-calculated]
    -p,  --processes               Number of parallel processes [DEFAULT=4]
    -r,  --reverse                 Reverse frame generation [DEFAULT=false]
    -v,  --verbose                 Print extra information and progress [DEFAULT=false]
@@ -67,7 +67,6 @@ pod2usage(1) if $opt_help;
 
 $opt_delay       = 10 if not defined $opt_delay;
 $opt_extra       = "-c 64 -f 1 -i 4096 -s 1024 -t 3" if not defined $opt_extra;
-$opt_iteration   = -1 if not defined $opt_iteration;
 $opt_movie       = 0 if not defined $opt_movie;
 $opt_processes   = 4 if not defined $opt_processes;
 $opt_reverse     = 0 if not defined $opt_reverse;
@@ -120,13 +119,18 @@ elsif (scalar(@ARGV) == 4)
 }
 
 $opt_num = get_num($opt_zoom) if not defined $opt_num;
-die("ERROR: Iteration must be between 0 and " . ($opt_num-1) . "\n") if $opt_iteration < -1 or $opt_iteration > $opt_num-1;
 
-if ($opt_iteration >= 0)
+if (defined $opt_iteration)
 {
-    print "INFO: Generating frame $opt_iteration only ...\n";
-    generate_frame($opt_iteration) if not frame_exists($opt_iteration);
-    exit 0;
+    $opt_iteration = $opt_num-1 if $opt_iteration == -1;
+    die("ERROR: Iteration must be between 0 and " . ($opt_num-1) . "\n") if $opt_iteration < -1 or $opt_iteration > $opt_num-1;
+    
+    if ($opt_iteration >= 0)
+    {
+        print "INFO: Generating frame $opt_iteration only ...\n";
+        generate_frame($opt_iteration) if not frame_exists($opt_iteration);
+        exit 0;
+    }
 }
 
 my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
@@ -169,9 +173,9 @@ sub generate_movie
     print "INFO: Generating $gif_output ...\n";
 
     my $fps = sprintf("%.1f", 100 / $opt_delay);
-    my $movie_length = sprintf("%.1f", $opt_num / $fps);
+    #my $movie_length = sprintf("%.1f", $opt_num / $fps);
     print "INFO: Frames per second equivalent is $fps\n";
-    print "INFO: Expected length of movie is $movie_length seconds\n";
+    #print "INFO: Expected length of movie is $movie_length seconds\n";
 
     run_command("convert -delay $delay frame-*.png -loop 0 $gif_output");
     
