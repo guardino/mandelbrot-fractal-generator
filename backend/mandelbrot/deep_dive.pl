@@ -120,6 +120,10 @@ elsif (scalar(@ARGV) == 4)
 
 $opt_num = get_num($opt_zoom) if not defined $opt_num;
 
+my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
+print "INFO: Number of frames = $opt_num\n";
+print "INFO: Rate = $rate\n" if $opt_verbose;
+
 if (defined $opt_iteration)
 {
     $opt_iteration = $opt_num-1 if $opt_iteration == -1;
@@ -133,11 +137,7 @@ if (defined $opt_iteration)
     }
 }
 
-my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
 print "INFO: Beginning iterations ...\n" if $opt_verbose;
-print "INFO: Number of frames = $opt_num\n";
-print "INFO: Rate = $rate\n" if $opt_verbose;
-
 my @jobs = ();
 my @skipped = ();
 
