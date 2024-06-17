@@ -73,7 +73,6 @@ $opt_processes   = 4 if not defined $opt_processes;
 $opt_reverse     = 0 if not defined $opt_reverse;
 $opt_verbose     = 0 if not defined $opt_verbose;
 $opt_zoom        = 1.0e10 if not defined $opt_zoom;
-$opt_num         = get_num($opt_zoom) if not defined $opt_num;
 
 if ($opt_movie)
 {
@@ -82,12 +81,8 @@ if ($opt_movie)
 }
 
 die("ERROR: Please specify (x_c y_c) or (x_min x_max y_min y_max)\n") if scalar(@ARGV) < 2;
-die("ERROR: Iteration must be between 0 and " . ($opt_num-1) . "\n") if $opt_iteration < -1 or $opt_iteration > $opt_num-1;
 
 my ($delta_x, $delta_y) = (DELTA_X, DELTA_Y);
-
-print "INFO: Number of frames = $opt_num\n";
-
 my ($x_c, $y_c);
 my $expected_aspect_ratio;
 if (scalar(@ARGV) == 2)
@@ -124,8 +119,8 @@ elsif (scalar(@ARGV) == 4)
     print "INFO: Zoom = $opt_zoom\n" if $opt_verbose;
 }
 
-my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
-print "INFO: Rate = $rate\n" if $opt_verbose;
+$opt_num = get_num($opt_zoom) if not defined $opt_num;
+die("ERROR: Iteration must be between 0 and " . ($opt_num-1) . "\n") if $opt_iteration < -1 or $opt_iteration > $opt_num-1;
 
 if ($opt_iteration >= 0)
 {
@@ -134,7 +129,10 @@ if ($opt_iteration >= 0)
     exit 0;
 }
 
+my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
 print "INFO: Beginning iterations ...\n" if $opt_verbose;
+print "INFO: Number of frames = $opt_num\n";
+print "INFO: Rate = $rate\n" if $opt_verbose;
 
 my @jobs = ();
 my @skipped = ();
@@ -192,7 +190,10 @@ sub get_num
     my ($zoom) = @_;
 
     # Scale point: zoom of 1e15 requires 500 frames
-    return sprintf("%d", log10($zoom) * 500 / 15.0);
+    my $N = log10($zoom) * 500 / 15.0;
+
+    # Round to int and return
+    return sprintf("%.0f", int($N));
 }
 
 sub log10
