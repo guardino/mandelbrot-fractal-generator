@@ -122,18 +122,13 @@ elsif (scalar(@ARGV) == 4)
     print "INFO: Zoom = $opt_zoom\n" if $opt_verbose;
 }
 
-foreach my $file (glob('*.csv *.plt *.png'))
-{
-    remove_file($file);
-}
-
 my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
 print "INFO: Rate = $rate\n" if $opt_verbose;
 
 if ($opt_iteration >= 0)
 {
     print "INFO: Generating frame $opt_iteration only ...\n";
-    generate_frame($opt_iteration);
+    generate_frame($opt_iteration) if not frame_exists($opt_iteration);
     exit 0;
 }
 
@@ -146,6 +141,7 @@ if ($opt_reverse)
 {
     for (my $i = $opt_num-1; $i >= 0; $i--)
     {
+        next if frame_exists($i);
         next if not generate_frame($i);
     }
 }
@@ -153,6 +149,7 @@ else
 {
     for (my $i = 0; $i < $opt_num; $i++)
     {
+        next if frame_exists($i);
         next if not generate_frame($i);
     }
 }
@@ -184,6 +181,17 @@ sub generate_movie
         # See https://unix.stackexchange.com/questions/40638/how-to-do-i-convert-an-animated-gif-to-an-mp4-or-mv4-on-the-command-line
         run_command("ffmpeg -i $gif_output -movflags faststart -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" $mp4_output");
     }
+}
+
+sub frame_exists
+{
+    my ($i) = @_;
+
+    my $index = sprintf("%010d", $i);
+    my $name = "frame-$index";
+    my $image = "$name.png";
+
+    return -e $image ? 1 : 0;
 }
 
 sub generate_frame
