@@ -124,7 +124,7 @@ my $expected_aspect_ratio;
 if (scalar(@ARGV) == 2 + $offset)
 {
     ($x_c, $y_c) = (1.0*$ARGV[0], 1.0*$ARGV[1]);
-    ($x_j, $y_j) = (1.0*$ARGV[2], 1.0*$ARGV[3]) if $is_julia;
+    ($x_j, $y_j) = $is_julia ? (1.0*$ARGV[2], 1.0*$ARGV[3]) : (0.0, 0.0);
     $expected_aspect_ratio = $delta_x / $delta_y;
     print "INFO: Expected aspect ratio = $expected_aspect_ratio\n" if $opt_verbose;
 }
@@ -132,7 +132,7 @@ elsif (scalar(@ARGV) == 4 + $offset)
 {
     my ($x_min, $x_max) = (1.0*$ARGV[0], 1.0*$ARGV[1]);
     my ($y_min, $y_max) = (1.0*$ARGV[2], 1.0*$ARGV[3]);
-    ($x_j, $y_j) = (1.0*$ARGV[4], 1.0*$ARGV[5]) if $is_julia;
+    ($x_j, $y_j) = $is_julia ? (1.0*$ARGV[4], 1.0*$ARGV[5]) : (0.0, 0.0);
 
     die("ERROR: x_min should be less than x_max\n") if $x_min >= $x_max;
     die("ERROR: y_min should be less than y_max\n") if $y_min >= $y_max;
@@ -330,8 +330,7 @@ sub generate_frame
     push(@jobs, $i);
     my $verbose_str = $opt_verbose ? '-v' : '';
     my $extra_flags = "-c 64 -f $opt_fractal -i $opt_iterations -s $opt_size -t $theme_id";
-    my $flags = "-i $i $verbose_str -e \"$extra_flags\" -- $x_min $x_max $y_min $y_max";
-    $flags .= " $x_j $y_j" if $is_julia;
+    my $flags = "-i $i $verbose_str -e \"$extra_flags\" -- $x_min $x_max $y_min $y_max $x_j $y_j";
     run_command("start /b perl $FindBin::Bin/fractal.pl $flags");
 
     return 1;
