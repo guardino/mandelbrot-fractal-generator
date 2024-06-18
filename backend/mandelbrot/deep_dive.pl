@@ -45,11 +45,12 @@ deep_dive.pl
  deep_dive.pl [options] -- x_min x_max y_min y_max [x_j y_j]
 
  Options:
-   -c,  --count                   Generate frame for specified frame only [if omitted will generate all frames]
-   -d,  --delay                   Delay between frames in 1/100-th of a second [DEFAULT=10].
+   -c,  --contours                Contour levels (if omitted will be auto-calculated)
+   -d,  --delay                   Delay between frames in 1/100-th of a second [DEFAULT=10]
    -f,  --fractal                 Fractal type (1=Mandelbrot, 2=Julia) [DEFAULT=1]
    -h,  --help                    Help usage message
    -i,  --iterations              Number of iterations (if omitted will be auto-calculated)
+   -k,  --count                   Generate frame for specified frame only [if omitted will generate all frames]
    -m,  --movie                   Generate movie only (requires frames to exist)
    -n,  --num                     Number of frames in animation (if omitted will be auto-calculated)
    -p,  --processes               Number of parallel processes [DEFAULT=4]
@@ -66,13 +67,14 @@ B<deep_dive.pl> Generates movie of a deep dive into the Mandelbrot set
 =cut
 # POD }}}1
 
-my ($opt_count, $opt_delay, $opt_fractal, $opt_help, $opt_iterations, $opt_movie, $opt_num, $opt_processes, $opt_reverse, $opt_size, $opt_theme, $opt_verbose, $opt_zoom) = undef;
+my ($opt_contours, $opt_count, $opt_delay, $opt_fractal, $opt_help, $opt_iterations, $opt_movie, $opt_num, $opt_processes, $opt_reverse, $opt_size, $opt_theme, $opt_verbose, $opt_zoom) = undef;
 GetOptions(
-            'count|c=i'                   => \$opt_count,
+            'contours|c=i'                => \$opt_contours,
             'delay|d=i'                   => \$opt_delay,
             'fractal|f=i'                 => \$opt_fractal,
             'help|?'                      => \$opt_help,
             'iterations|i=i'              => \$opt_iterations,
+            'count|k=i'                   => \$opt_count,
             'movie|m'                     => \$opt_movie,
             "num|n=i"                     => \$opt_num,
             "proc|p=i"                    => \$opt_processes,
@@ -154,7 +156,7 @@ elsif (scalar(@ARGV) == 4 + $offset)
     print "INFO: x_c = $x_c\n" if $opt_verbose;
     print "INFO: y_c = $y_c\n" if $opt_verbose;
     $opt_zoom = 2 * $delta_x / $dx;
-    print "INFO: Zoom = $opt_zoom\n" if $opt_verbose;
+    print "INFO: Zoom = $opt_zoom\n";
 }
 else
 {
@@ -163,10 +165,12 @@ else
 
 $opt_num = get_num($opt_zoom) if not defined $opt_num;
 $opt_iterations = get_iterations($opt_zoom) if not defined $opt_iterations;
+$opt_contours = get_contours($opt_zoom) if not defined $opt_contours;
 
 my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
 print "INFO: Number of frames = $opt_num\n";
 print "INFO: Iterations = $opt_iterations\n";
+print "INFO: Contours = $opt_contours\n";
 print "INFO: Rate = $rate\n" if $opt_verbose;
 
 if (defined $opt_count)
@@ -256,11 +260,11 @@ sub get_iterations
 {
     my ($zoom) = @_;
 
-    if ($zoom < 1.0e4)
+    if ($zoom < 1.0e2)
     {
         return 1024;
     }
-    elsif ($zoom < 1.0e10)
+    elsif ($zoom < 1.0e5)
     {
         return 2048;
     }
@@ -279,6 +283,36 @@ sub get_iterations
     else
     {
         return 32768;
+    }
+}
+
+sub get_contours
+{
+    my ($zoom) = @_;
+
+    if ($zoom < 1.0e2)
+    {
+        return 32;
+    }
+    elsif ($zoom < 1.0e5)
+    {
+        return 64;
+    }
+    elsif ($zoom < 1.0e13)
+    {
+        return 128;
+    }
+    elsif ($zoom < 1.0e20)
+    {
+        return 256;
+    }
+    elsif ($zoom < 1.0e32)
+    {
+        return 512;
+    }
+    else
+    {
+        return 512;
     }
 }
 
@@ -329,7 +363,7 @@ sub generate_frame
     check_jobs(0);
     push(@jobs, $i);
     my $verbose_str = $opt_verbose ? '-v' : '';
-    my $extra_flags = "-c 64 -f $opt_fractal -i $opt_iterations -s $opt_size -t $theme_id";
+    my $extra_flags = "-c $opt_contours -f $opt_fractal -i $opt_iterations -s $opt_size -t $theme_id";
     my $flags = "-i $i $verbose_str -e \"$extra_flags\" -- $x_min $x_max $y_min $y_max $x_j $y_j";
     run_command("start /b perl $FindBin::Bin/fractal.pl $flags");
 
