@@ -2,9 +2,9 @@
 
 #######################################################################################
 # Name:          deep_dive.pl
-# Description:   Generates movie of a deep dive into the Mandelbrot set
+# Description:   Generates movie of a deep dive into the Mandelbrot or Julia set
 # Author:        Cesare Guardino
-# Last modified: 17 June 2024
+# Last modified: 18 June 2024
 #######################################################################################
 
 use bignum ( p => -80 );
@@ -20,6 +20,19 @@ use constant DELTA_X      => 1.75;
 use constant DELTA_Y      => 1.3;
 use constant TOLERANCE    => 1.0e-6;
 
+my %themes = (
+  "bubblegum" =>  1,
+  "candy"     =>  2,
+  "cosmic"    =>  3,
+  "fire"      =>  4,
+  "floral"    =>  5,
+  "hot"       =>  6,
+  "imperial"  =>  7,
+  "ocean"     =>  8,
+  "rainbow"   =>  9,
+  "volcano"   => 10,
+);
+
 # POD {{{1
 =head1 NAME
 
@@ -33,13 +46,15 @@ deep_dive.pl
 
  Options:
    -d,  --delay                   Delay between frames in 1/100-th of a second [DEFAULT=10].
-   -e,  --extra                   Extra options to pass to mandelbrot program [DEFAULT=-c 64 -f 1 -i 4096 -s 1024 -t 3]
+   -f,  --fractal                 Fractal type (1=Mandelbrot, 2=Julia) [DEFAULT=1]
    -h,  --help                    Help usage message
    -i,  --iteration               Generate frame for specified iteration only [if omitted will generate all frames]
    -m,  --movie                   Generate movie only (requires frames to exist)
    -n,  --num                     Number of frames in animation [if omitted will be auto-calculated]
    -p,  --processes               Number of parallel processes [DEFAULT=4]
    -r,  --reverse                 Reverse frame generation [DEFAULT=false]
+   -s,  --size                    Frame width in pixels [DEFAULT=1024]
+   -t,  --theme                   Colour theme [DEFAULT=fire]
    -v,  --verbose                 Print extra information and progress [DEFAULT=false]
    -z,  --zoom                    Final zoom level [DEFAULT=1.0e10]
 
@@ -50,26 +65,30 @@ B<deep_dive.pl> Generates movie of a deep dive into the Mandelbrot set
 =cut
 # POD }}}1
 
-my ($opt_delay, $opt_extra, $opt_help, $opt_iteration, $opt_movie, $opt_num, $opt_processes, $opt_reverse, $opt_verbose, $opt_zoom) = undef;
+my ($opt_delay, $opt_fractal, $opt_help, $opt_iteration, $opt_movie, $opt_num, $opt_processes, $opt_reverse, $opt_size, $opt_theme, $opt_verbose, $opt_zoom) = undef;
 GetOptions(
             'delay|d=i'                   => \$opt_delay,
-            'extra|e=s'                   => \$opt_extra,
+            'fractal|f=i'                 => \$opt_fractal,
             'help|?'                      => \$opt_help,
             'iteration|i=i'               => \$opt_iteration,
             'movie|m'                     => \$opt_movie,
             "num|n=i"                     => \$opt_num,
             "proc|p=i"                    => \$opt_processes,
             "reverse|r"                   => \$opt_reverse,
+            "size|s=i"                    => \$opt_size,
+            "theme|t=s"                   => \$opt_theme,
             "verbose|v"                   => \$opt_verbose,
             'zoom|z=s'                    => \$opt_zoom,
           ) or pod2usage(2);
 pod2usage(1) if $opt_help;
 
 $opt_delay       = 10 if not defined $opt_delay;
-$opt_extra       = "-c 64 -f 1 -i 4096 -s 1024 -t 3" if not defined $opt_extra;
+$opt_fractal     = 1 if not defined $opt_fractal;
 $opt_movie       = 0 if not defined $opt_movie;
 $opt_processes   = 4 if not defined $opt_processes;
 $opt_reverse     = 0 if not defined $opt_reverse;
+$opt_size        = 1024 if not defined $opt_size;
+$opt_theme       = "fire" if not defined $opt_theme;
 $opt_verbose     = 0 if not defined $opt_verbose;
 $opt_zoom        = 1.0e10 if not defined $opt_zoom;
 
@@ -80,6 +99,19 @@ if ($opt_movie)
 }
 
 die("ERROR: Please specify (x_c y_c) or (x_min x_max y_min y_max)\n") if scalar(@ARGV) < 2;
+die("ERROR: Invalid fractal type (1=Mandelbrot, 2=Julia)\n") if $opt_fractal != 1 and $opt_fractal !=2;
+
+if (not exists($themes{lc $opt_theme}))
+{
+    print "ERROR: Unknown theme $opt_theme selected. Available themes are:\n" ;
+    foreach my $theme (sort keys(%themes))
+    {
+        print("    $theme\n");
+    }
+    exit 1;
+}
+
+my $theme_id = $themes{lc $opt_theme};
 
 my ($delta_x, $delta_y) = (DELTA_X, DELTA_Y);
 my ($x_c, $y_c);
@@ -121,7 +153,9 @@ elsif (scalar(@ARGV) == 4)
 $opt_num = get_num($opt_zoom) if not defined $opt_num;
 
 my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
+my $iterations = get_iterations($opt_zoom);
 print "INFO: Number of frames = $opt_num\n";
+print "INFO: Iterations = $iterations\n";
 print "INFO: Rate = $rate\n" if $opt_verbose;
 
 if (defined $opt_iteration)
@@ -207,6 +241,36 @@ sub log10
     return log($n) / log(10);
 }
 
+sub get_iterations
+{
+    my ($zoom) = @_;
+
+    if ($zoom < 1.0e4)
+    {
+        return 1024;
+    }
+    elsif ($zoom < 1.0e10)
+    {
+        return 2048;
+    }
+    elsif ($zoom < 1.0e13)
+    {
+        return 4096;
+    }
+    elsif ($zoom < 1.0e20)
+    {
+        return 8192;
+    }
+    elsif ($zoom < 1.0e32)
+    {
+        return 16384;
+    }
+    else
+    {
+        return 32768;
+    }
+}
+
 sub frame_exists
 {
     my ($i) = @_;
@@ -254,7 +318,8 @@ sub generate_frame
     check_jobs(0);
     push(@jobs, $i);
     my $verbose_str = $opt_verbose ? '-v' : '';
-    run_command("start /b perl $FindBin::Bin/fractal.pl -i $i $verbose_str -e \"$opt_extra\" -- $x_min $x_max $y_min $y_max");
+    my $extra_flags = "-c 64 -f $opt_fractal -i $iterations -s $opt_size -t $theme_id";
+    run_command("start /b perl $FindBin::Bin/fractal.pl -i $i $verbose_str -e \"$extra_flags\" -- $x_min $x_max $y_min $y_max");
 
     return 1;
 }
