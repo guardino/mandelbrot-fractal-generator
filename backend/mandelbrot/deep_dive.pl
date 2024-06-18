@@ -45,12 +45,13 @@ deep_dive.pl
  deep_dive.pl [options] -- x_min x_max y_min y_max
 
  Options:
+   -c,  --count                   Generate frame for specified frame only [if omitted will generate all frames]
    -d,  --delay                   Delay between frames in 1/100-th of a second [DEFAULT=10].
    -f,  --fractal                 Fractal type (1=Mandelbrot, 2=Julia) [DEFAULT=1]
    -h,  --help                    Help usage message
-   -i,  --iteration               Generate frame for specified iteration only [if omitted will generate all frames]
+   -i,  --iterations              Number of iterations (if omitted will be auto-calculated)
    -m,  --movie                   Generate movie only (requires frames to exist)
-   -n,  --num                     Number of frames in animation [if omitted will be auto-calculated]
+   -n,  --num                     Number of frames in animation (if omitted will be auto-calculated)
    -p,  --processes               Number of parallel processes [DEFAULT=4]
    -r,  --reverse                 Reverse frame generation [DEFAULT=false]
    -s,  --size                    Frame width in pixels [DEFAULT=1024]
@@ -65,12 +66,13 @@ B<deep_dive.pl> Generates movie of a deep dive into the Mandelbrot set
 =cut
 # POD }}}1
 
-my ($opt_delay, $opt_fractal, $opt_help, $opt_iteration, $opt_movie, $opt_num, $opt_processes, $opt_reverse, $opt_size, $opt_theme, $opt_verbose, $opt_zoom) = undef;
+my ($opt_count, $opt_delay, $opt_fractal, $opt_help, $opt_iterations, $opt_movie, $opt_num, $opt_processes, $opt_reverse, $opt_size, $opt_theme, $opt_verbose, $opt_zoom) = undef;
 GetOptions(
+            'count|c=i'                   => \$opt_count,
             'delay|d=i'                   => \$opt_delay,
             'fractal|f=i'                 => \$opt_fractal,
             'help|?'                      => \$opt_help,
-            'iteration|i=i'               => \$opt_iteration,
+            'iterations|i=i'              => \$opt_iterations,
             'movie|m'                     => \$opt_movie,
             "num|n=i"                     => \$opt_num,
             "proc|p=i"                    => \$opt_processes,
@@ -151,22 +153,22 @@ elsif (scalar(@ARGV) == 4)
 }
 
 $opt_num = get_num($opt_zoom) if not defined $opt_num;
+$opt_iterations = get_iterations($opt_zoom) if not defined $opt_iterations;
 
 my $rate = exp( log(1.0/$opt_zoom) / ($opt_num-1) );
-my $iterations = get_iterations($opt_zoom);
 print "INFO: Number of frames = $opt_num\n";
-print "INFO: Iterations = $iterations\n";
+print "INFO: Iterations = $opt_iterations\n";
 print "INFO: Rate = $rate\n" if $opt_verbose;
 
-if (defined $opt_iteration)
+if (defined $opt_count)
 {
-    $opt_iteration = $opt_num-1 if $opt_iteration == -1;
-    die("ERROR: Iteration must be between 0 and " . ($opt_num-1) . "\n") if $opt_iteration < -1 or $opt_iteration > $opt_num-1;
+    $opt_count = $opt_num-1 if $opt_count == -1;
+    die("ERROR: Iteration must be between 0 and " . ($opt_num-1) . "\n") if $opt_count < -1 or $opt_count > $opt_num-1;
     
-    if ($opt_iteration >= 0)
+    if ($opt_count >= 0)
     {
-        print "INFO: Generating frame $opt_iteration only ...\n";
-        generate_frame($opt_iteration) if not frame_exists($opt_iteration);
+        print "INFO: Generating frame $opt_count only ...\n";
+        generate_frame($opt_count) if not frame_exists($opt_count);
         exit 0;
     }
 }
@@ -318,7 +320,7 @@ sub generate_frame
     check_jobs(0);
     push(@jobs, $i);
     my $verbose_str = $opt_verbose ? '-v' : '';
-    my $extra_flags = "-c 64 -f $opt_fractal -i $iterations -s $opt_size -t $theme_id";
+    my $extra_flags = "-c 64 -f $opt_fractal -i $opt_iterations -s $opt_size -t $theme_id";
     run_command("start /b perl $FindBin::Bin/fractal.pl -i $i $verbose_str -e \"$extra_flags\" -- $x_min $x_max $y_min $y_max");
 
     return 1;
