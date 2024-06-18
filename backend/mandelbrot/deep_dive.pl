@@ -40,9 +40,9 @@ deep_dive.pl
 
 =head1 SYNOPSIS
 
- deep_dive.pl [options] -- x_c y_c
+ deep_dive.pl [options] -- x_c y_c [x_j y_j]
    or
- deep_dive.pl [options] -- x_min x_max y_min y_max
+ deep_dive.pl [options] -- x_min x_max y_min y_max [x_j y_j]
 
  Options:
    -c,  --count                   Generate frame for specified frame only [if omitted will generate all frames]
@@ -115,19 +115,24 @@ if (not exists($themes{lc $opt_theme}))
 
 my $theme_id = $themes{lc $opt_theme};
 
+my $is_julia = $opt_fractal == 2;
+my $offset = $is_julia ? 2 : 0;
 my ($delta_x, $delta_y) = (DELTA_X, DELTA_Y);
 my ($x_c, $y_c);
+my ($x_j, $y_j);
 my $expected_aspect_ratio;
-if (scalar(@ARGV) == 2)
+if (scalar(@ARGV) == 2 + $offset)
 {
     ($x_c, $y_c) = (1.0*$ARGV[0], 1.0*$ARGV[1]);
+    ($x_j, $y_j) = (1.0*$ARGV[2], 1.0*$ARGV[3]) if $is_julia;
     $expected_aspect_ratio = $delta_x / $delta_y;
     print "INFO: Expected aspect ratio = $expected_aspect_ratio\n" if $opt_verbose;
 }
-elsif (scalar(@ARGV) == 4)
+elsif (scalar(@ARGV) == 4 + $offset)
 {
     my ($x_min, $x_max) = (1.0*$ARGV[0], 1.0*$ARGV[1]);
     my ($y_min, $y_max) = (1.0*$ARGV[2], 1.0*$ARGV[3]);
+    ($x_j, $y_j) = (1.0*$ARGV[4], 1.0*$ARGV[5]) if $is_julia;
 
     die("ERROR: x_min should be less than x_max\n") if $x_min >= $x_max;
     die("ERROR: y_min should be less than y_max\n") if $y_min >= $y_max;
@@ -150,6 +155,10 @@ elsif (scalar(@ARGV) == 4)
     print "INFO: y_c = $y_c\n" if $opt_verbose;
     $opt_zoom = 2 * $delta_x / $dx;
     print "INFO: Zoom = $opt_zoom\n" if $opt_verbose;
+}
+else
+{
+    die("ERROR: Invalid number of arguments\n");
 }
 
 $opt_num = get_num($opt_zoom) if not defined $opt_num;
@@ -321,7 +330,9 @@ sub generate_frame
     push(@jobs, $i);
     my $verbose_str = $opt_verbose ? '-v' : '';
     my $extra_flags = "-c 64 -f $opt_fractal -i $opt_iterations -s $opt_size -t $theme_id";
-    run_command("start /b perl $FindBin::Bin/fractal.pl -i $i $verbose_str -e \"$extra_flags\" -- $x_min $x_max $y_min $y_max");
+    my $flags = "-i $i $verbose_str -e \"$extra_flags\" -- $x_min $x_max $y_min $y_max";
+    $flags .= " $x_j $y_j" if $is_julia;
+    run_command("start /b perl $FindBin::Bin/fractal.pl $flags");
 
     return 1;
 }

@@ -4,7 +4,7 @@
 # Name:          fractal.pl
 # Description:   Wrapper for Mandelbrot/Julia set fractal creation program 
 # Author:        Cesare Guardino
-# Last modified: 4 January 2024
+# Last modified: 18 June 2024
 #######################################################################################
 
 use bignum ( p => -80 );
@@ -25,7 +25,7 @@ fractal
 
 =head1 SYNOPSIS
 
- fractal [options] -- x_min x_max y_min y_max
+ fractal [options] -- x_min x_max y_min y_max [x_j y_j]
 
  Options:
    -e,  --extra                   Extra options to pass to mandelbrot program [DEFAULT=-c 64 -f 1 -i 2048 -s 1024 -t 3]
@@ -53,10 +53,14 @@ $opt_extra       = "-c 64 -f 1 -i 2048 -s 1024 -t 3" if not defined $opt_extra;
 $opt_index       = 0 if not defined $opt_index;
 $opt_verbose     = 0 if not defined $opt_verbose;
 
-die("ERROR: Please specify (x_min x_max y_min y_max)\n") if scalar(@ARGV) != 4;
+my $is_julia = $opt_extra =~ / -f 2 /;
+
+die("ERROR: Please specify (x_min x_max y_min y_max)\n") if scalar(@ARGV) != 4 and not $is_julia;
+die("ERROR: Please specify (x_min x_max y_min y_max x_j y_j)\n") if scalar(@ARGV) != 6 and $is_julia;
 
 my ($x_min, $x_max) = (1.0*$ARGV[0], 1.0*$ARGV[1]);
 my ($y_min, $y_max) = (1.0*$ARGV[2], 1.0*$ARGV[3]);
+my ($x_j, $y_j)     = (1.0*$ARGV[4], 1.0*$ARGV[5]) if $is_julia;
 
 die("ERROR: x_min should be less than x_max\n") if $x_min >= $x_max;
 die("ERROR: y_min should be less than y_max\n") if $y_min >= $y_max;
@@ -73,7 +77,7 @@ elsif (abs($x_max - $x_min) < PREC_80_BIT or abs($y_max - $y_min) < PREC_80_BIT)
 
 my $mandelbrot_exe = "mandelbrot-" . $bit_accuracy;
 my $cmd = "$mandelbrot_exe $opt_extra $x_min $x_max $y_min $y_max";
-$cmd .= " 0.0 0.0";
+$cmd .= " $x_j $y_j" if $is_julia;
 
 my $index = sprintf("%010d", $opt_index);
 my $name = "frame-$index";
