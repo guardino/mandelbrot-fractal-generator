@@ -4,7 +4,7 @@
 # Name:          deep_dive.pl
 # Description:   Generates movie of a deep dive into the Mandelbrot or Julia set
 # Author:        Cesare Guardino
-# Last modified: 18 June 2024
+# Last modified: 20 June 2024
 #######################################################################################
 
 use bignum ( p => -80 );
@@ -16,8 +16,8 @@ use FindBin;
 use Getopt::Long;
 use Pod::Usage;
 
-use constant DELTA_X      => 1.75;
-use constant DELTA_Y      => 1.3;
+use constant DELTA_X      => 3.5;
+use constant DELTA_Y      => 2.6;
 use constant TOLERANCE    => 1.0e-6;
 
 my %themes = (
