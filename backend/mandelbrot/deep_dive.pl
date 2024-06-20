@@ -175,7 +175,7 @@ print "INFO: Rate = $rate\n" if $opt_verbose;
 
 if (defined $opt_count)
 {
-    $opt_count = $opt_num-1 if $opt_count == -1;
+    $opt_count = $opt_num + $opt_count if $opt_count < 0;
     die("ERROR: Iteration must be between 0 and " . ($opt_num-1) . "\n") if $opt_count < -1 or $opt_count > $opt_num-1;
     
     if ($opt_count >= 0)
