@@ -215,7 +215,7 @@ function generateMandelbrot(req) {
     mandelbrot_exe += ".exe";
   }
 
-  const mandelbrotPath = getMandelbrotExecutable(mandelbrot_exe);
+  const mandelbrotPath = path.join(__dirname, "../mandelbrot/", mandelbrot_exe);
   tempDir = getTempDir();
   cmd = "cd " + tempDir + " && " +
         "\"" + mandelbrotPath + "\"" +
@@ -246,22 +246,6 @@ function generateMandelbrot(req) {
   imagePath = url + "/images/" + imageFilename;
 
   return imagePath;
-}
-
-function getMandelbrotExecutable(executableName) {
-  const directories = [
-    path.join(__dirname, "../mandelbrot"),
-    path.join(__dirname, "../../mandelbrot")
-  ];
-  const executablePath = directories
-    .map(directory => path.join(directory, executableName))
-    .find(filePath => fs.existsSync(filePath));
-
-  if (!executablePath) {
-    throw new Error("Mandelbrot generator executable not found: " + executableName);
-  }
-
-  return executablePath;
 }
 
 function getTempDir() {
