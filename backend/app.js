@@ -2,6 +2,7 @@ const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const imageStorageDirectory = require("./image-storage");
 
 const postsRoutes = require("./routes/posts");
 const userRoutes = require("./routes/user");
@@ -21,7 +22,7 @@ mongoose
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use("/images", express.static(path.join(__dirname, "images")));
+app.use("/images", express.static(imageStorageDirectory));
 app.use("/", express.static(path.join(__dirname, "angular")));
 
 // app.use((req, res, next) => {

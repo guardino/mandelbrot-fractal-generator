@@ -1,6 +1,7 @@
 const execSync = require('child_process').execSync;
 const fs = require('fs');
 const path = require("path");
+const imageStorageDirectory = require("../image-storage");
 
 const Post = require("../models/post");
 
@@ -193,12 +194,10 @@ exports.deletePost = (req, res, next) => {
 
 
 function deleteImage(req, post) {
-  const url = req.protocol + "://" + req.get("host");
-  const imageUrl = post.imagePath;
-  imagePath = imageUrl.replace(url + "/","");
-  imagePath = path.join(__dirname, "../") + imagePath;
-  if (fs.existsSync(imagePath)) {
-    fs.unlinkSync(imagePath);
+  const imageFilename = path.basename(post.imagePath);
+  const imageFilePath = path.join(imageStorageDirectory, imageFilename);
+  if (fs.existsSync(imageFilePath)) {
+    fs.unlinkSync(imageFilePath);
   }
 }
 
@@ -216,9 +215,10 @@ function generateMandelbrot(req) {
     mandelbrot_exe += ".exe";
   }
 
+  const mandelbrotPath = getMandelbrotExecutable(mandelbrot_exe);
   tempDir = getTempDir();
   cmd = "cd " + tempDir + " && " +
-        path.join(__dirname, "../mandelbrot/") + mandelbrot_exe +
+        "\"" + mandelbrotPath + "\"" +
         " -c " + req.body.contours +
         " -f " + req.body.fractal +
         " -i " + req.body.iterations +
@@ -238,7 +238,7 @@ function generateMandelbrot(req) {
 
   const imageFilename = Date.now() + ".png";
 
-  fs.renameSync(tempDir + "/contours.png", path.join(__dirname, "../images/") + imageFilename);
+  fs.renameSync(tempDir + "/contours.png", path.join(imageStorageDirectory, imageFilename));
   //fs.rmdirSync(tempDir, { recursive: true });  // requires Node.js >= 12.0
   deleteFolderRecursive(tempDir);
 
@@ -246,6 +246,22 @@ function generateMandelbrot(req) {
   imagePath = url + "/images/" + imageFilename;
 
   return imagePath;
+}
+
+function getMandelbrotExecutable(executableName) {
+  const directories = [
+    path.join(__dirname, "../mandelbrot"),
+    path.join(__dirname, "../../mandelbrot")
+  ];
+  const executablePath = directories
+    .map(directory => path.join(directory, executableName))
+    .find(filePath => fs.existsSync(filePath));
+
+  if (!executablePath) {
+    throw new Error("Mandelbrot generator executable not found: " + executableName);
+  }
+
+  return executablePath;
 }
 
 function getTempDir() {
