@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 cd ${0%/*} || exit 1    # run from this directory
 
