@@ -9,6 +9,7 @@ import { Post } from "../post.model";
 import { JuliaSettingsComponent } from "./julia-settings.component";
 import { mimeType } from "./mime-type.validator";
 import { AuthService } from "../../auth/auth.service";
+import { getCoordinateCenter, getSelectedBounds } from "./coordinate-math";
 
 @Component({
   selector: "app-post-create",
@@ -68,10 +69,10 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   private parentId: string;
   private authStatusSub: Subscription;
 
-  private xMinInit;
-  private xMaxInit;
-  private yMinInit;
-  private yMaxInit;
+  private xMinInit: string;
+  private xMaxInit: string;
+  private yMinInit: string;
+  private yMaxInit: string;
 
   constructor(
     public postsService: PostsService,
@@ -83,12 +84,12 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   setDefaultsOnCreate() {
     this.form.setValue({
       title: this.isJulia ? "Default Julia Set" : "Default Mandelbrot Set",
-      xMin: this.isJulia ?   -1.5 : -2.5,
-      xMax: this.isJulia ?    1.5 :  1.0,
-      yMin: this.isJulia ?   -1.5 : -1.3,
-      yMax: this.isJulia ?    1.5 :  1.3,
-      xC:   this.isJulia ?  0.285 :  0.0,
-      yC:   this.isJulia ?   0.01 :  0.0,
+      xMin: this.isJulia ? "-1.5" : "-2.5",
+      xMax: this.isJulia ?  "1.5" :  "1.0",
+      yMin: this.isJulia ? "-1.5" : "-1.3",
+      yMax: this.isJulia ?  "1.5" :  "1.3",
+      xC:   this.isJulia ? "0.285" : "0.0",
+      yC:   this.isJulia ?  "0.01" : "0.0",
       contours: this.contourList[1].value,
       theme: this.themes[2].value,
       iterations: this.iterationList[2].value,
@@ -100,12 +101,16 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   setDefaultsOnChange() {
     this.form.setValue({
       title: this.isJulia ? "Example Julia Set" : "Example Mandelbrot Set",
-      xMin: this.isJulia ?   -1.5 : -2.5,
-      xMax: this.isJulia ?    1.5 :  1.0,
-      yMin: this.isJulia ?   -1.5 : -1.3,
-      yMax: this.isJulia ?    1.5 :  1.3,
-      xC: this.isJulia ? 0.5 * (Number(this.form.value.xMin) + Number(this.form.value.xMax)) : 0.0,
-      yC: this.isJulia ? 0.5 * (Number(this.form.value.yMin) + Number(this.form.value.yMax)) : 0.0,
+      xMin: this.isJulia ? "-1.5" : "-2.5",
+      xMax: this.isJulia ?  "1.5" :  "1.0",
+      yMin: this.isJulia ? "-1.5" : "-1.3",
+      yMax: this.isJulia ?  "1.5" :  "1.3",
+      xC: this.isJulia
+        ? getCoordinateCenter(this.form.value.xMin, this.form.value.xMax)
+        : "0.0",
+      yC: this.isJulia
+        ? getCoordinateCenter(this.form.value.yMin, this.form.value.yMax)
+        : "0.0",
       contours: this.form.value.contours,
       theme: this.form.value.theme,
       iterations: this.form.value.iterations,
@@ -186,10 +191,10 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             size: this.post.size != null ? this.post.size : this.sizeList[2].value,
             fractal: this.post.fractal != null ? this.post.fractal : "1"
           });
-          this.xMinInit = Number(this.post.xMin);
-          this.xMaxInit = Number(this.post.xMax);
-          this.yMinInit = Number(this.post.yMin);
-          this.yMaxInit = Number(this.post.yMax);
+          this.xMinInit = this.post.xMin;
+          this.xMaxInit = this.post.xMax;
+          this.yMinInit = this.post.yMin;
+          this.yMaxInit = this.post.yMax;
         });
       } else {
         this.mode = "create";
@@ -249,39 +254,23 @@ export class PostCreateComponent implements OnInit, OnDestroy {
 
   getRange($event) {
     const range = $event;
-    const nPx = range[4];
-    const nPy = range[5];
-
-    let vPx;
-    let vPy;
-    let startX;
-    let startY;
-    const ratio = (this.xMaxInit - this.xMinInit) / (this.yMaxInit - this.yMinInit);
-    if (ratio < nPx / nPy) {
-      vPx = ratio * nPy;
-      vPy = nPy;
-      startX = 0.5 * (nPx - vPx);
-      startY = 0;
-    }
-    else {
-      vPx = nPx;
-      vPy = nPx / ratio;
-      startX = 0;
-      startY = 0.5 * (nPy - vPy);
-    }
-
-    let deltaX = (this.xMaxInit - this.xMinInit) / vPx;
-    let deltaY = (this.yMaxInit - this.yMinInit) / vPy;
-    let xMin = this.xMinInit + (range[0] - startX) * deltaX;
-    let xMax = this.xMinInit + (range[2] - startX) * deltaX;
-    let yMin = this.yMaxInit - (range[3] - startY) * deltaY;
-    let yMax = this.yMaxInit - (range[1] - startY) * deltaY;
+    const selectedBounds = getSelectedBounds(
+      {
+        xMin: this.xMinInit,
+        xMax: this.xMaxInit,
+        yMin: this.yMinInit,
+        yMax: this.yMaxInit
+      },
+      range,
+      range[4],
+      range[5]
+    );
     this.form.setValue({
       title: this.form.value.title,
-      xMin: xMin,
-      xMax: xMax,
-      yMin: yMin,
-      yMax: yMax,
+      xMin: selectedBounds.xMin,
+      xMax: selectedBounds.xMax,
+      yMin: selectedBounds.yMin,
+      yMax: selectedBounds.yMax,
       xC: this.form.value.xC,
       yC: this.form.value.yC,
       contours: this.form.value.contours,
