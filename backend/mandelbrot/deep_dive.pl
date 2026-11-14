@@ -4,14 +4,14 @@
 # Name:          deep_dive.pl
 # Description:   Generates movie of a deep dive into the Mandelbrot or Julia set
 # Author:        Cesare Guardino
-# Last modified: 23 June 2024
+# Last modified: 14 November 2026
 #######################################################################################
 
 use bignum ( p => -80 );
 use strict;
 use warnings;
 
-use File::Path;
+use File::Spec;
 use FindBin;
 use Getopt::Long;
 use Pod::Usage;
@@ -53,7 +53,7 @@ deep_dive.pl
    -k,  --count                   Generate frame for specified frame only [if omitted will generate all frames]
    -m,  --movie                   Generate movie only (requires frames to exist)
    -n,  --num                     Number of frames in animation (if omitted will be auto-calculated)
-   -p,  --processes               Number of parallel processes [DEFAULT=4]
+   -p,  --processes               Number of parallel worker threads [DEFAULT=4]
    -r,  --reverse                 Reverse frame generation [DEFAULT=false]
    -s,  --size                    Frame width in pixels [DEFAULT=1024]
    -t,  --theme                   Colour theme [DEFAULT=fire]
@@ -64,8 +64,14 @@ deep_dive.pl
 
 B<deep_dive.pl> Generates movie of a deep dive into the Mandelbrot set
 
+The mandelbrot executables must be built from the matching source to support
+independent frame output files.
+
 =cut
 # POD }}}1
+
+use threads;
+use Thread::Queue;
 
 my ($opt_contours, $opt_count, $opt_delay, $opt_fractal, $opt_help, $opt_iterations, $opt_movie, $opt_num, $opt_processes, $opt_reverse, $opt_size, $opt_theme, $opt_verbose, $opt_zoom) = undef;
 GetOptions(
@@ -95,6 +101,8 @@ $opt_size        = 1024 if not defined $opt_size;
 $opt_theme       = "fire" if not defined $opt_theme;
 $opt_verbose     = 0 if not defined $opt_verbose;
 $opt_zoom        = 1.0e10 if not defined $opt_zoom;
+
+die("ERROR: Number of worker threads must be greater than zero\n") if $opt_processes < 1;
 
 if ($opt_movie)
 {
@@ -173,6 +181,7 @@ print "INFO: Iterations = $opt_iterations\n";
 print "INFO: Contours = $opt_contours\n";
 print "INFO: Rate = $rate\n" if $opt_verbose;
 
+my @skipped = ();
 if (defined $opt_count)
 {
     $opt_count = $opt_num + $opt_count if $opt_count < 0;
@@ -181,33 +190,26 @@ if (defined $opt_count)
     if ($opt_count >= 0)
     {
         print "INFO: Generating frame $opt_count only ...\n";
-        generate_frame($opt_count) if not frame_exists($opt_count);
+        if (not frame_exists($opt_count))
+        {
+            my $job = prepare_frame($opt_count);
+            run_frame_jobs($job) if defined $job;
+        }
         exit 0;
     }
 }
 
 print "INFO: Beginning iterations ...\n" if $opt_verbose;
 my @jobs = ();
-my @skipped = ();
-
-if ($opt_reverse)
+my @frame_indices = $opt_reverse ? reverse(0 .. $opt_num-1) : (0 .. $opt_num-1);
+for my $i (@frame_indices)
 {
-    for (my $i = $opt_num-1; $i >= 0; $i--)
-    {
-        next if frame_exists($i);
-        next if not generate_frame($i);
-    }
-}
-else
-{
-    for (my $i = 0; $i < $opt_num; $i++)
-    {
-        next if frame_exists($i);
-        next if not generate_frame($i);
-    }
+    next if frame_exists($i);
+    my $job = prepare_frame($i);
+    push(@jobs, $job) if defined $job;
 }
 
-check_jobs(1);
+run_frame_jobs(@jobs);
 check_frames();
 
 generate_movie($opt_delay);
@@ -226,7 +228,8 @@ sub generate_movie
     print "INFO: Frames per second equivalent is $fps\n";
     #print "INFO: Expected length of movie is $movie_length seconds\n";
 
-    run_command("convert -delay $delay frame-*.png -loop 0 $gif_output");
+    my @frames = sort glob("frame-*.png");
+    run_command("convert", "-delay", $delay, @frames, "-loop", "0", $gif_output);
     
     if (-e $gif_output)
     {
@@ -234,7 +237,7 @@ sub generate_movie
         print "INFO: Generating $mp4_output ...\n";
         remove_file($mp4_output);
         # See https://unix.stackexchange.com/questions/40638/how-to-do-i-convert-an-animated-gif-to-an-mp4-or-mv4-on-the-command-line
-        run_command("ffmpeg -i $gif_output -movflags faststart -pix_fmt yuv420p -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" $mp4_output");
+        run_command("ffmpeg", "-i", $gif_output, "-movflags", "faststart", "-pix_fmt", "yuv420p", "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2", $mp4_output);
     }
 }
 
@@ -327,12 +330,10 @@ sub frame_exists
     return -e $image ? 1 : 0;
 }
 
-sub generate_frame
+sub prepare_frame
 {
     my ($i) = @_;
 
-    print "\n" if $opt_verbose;
-    print "INFO: Iteration = $i\n";
     my $scale = $rate ** $i;
     my $x_min = $x_c - $scale * $delta_x;
     my $x_max = $x_c + $scale * $delta_x;
@@ -355,53 +356,92 @@ sub generate_frame
 
     if ($x_min eq $x_max or $y_min eq $y_max)
     {
+        print "\n" if $opt_verbose;
+        print "INFO: Iteration = $i\n";
         print "INFO: Identical ranges detected for iteration $i, skipping iteration\n";
         push(@skipped, $i);
-        return 0;
+        return;
     }
 
-    check_jobs(0);
-    push(@jobs, $i);
-    my $verbose_str = $opt_verbose ? '-v' : '';
-    my $extra_flags = "-c $opt_contours -f $opt_fractal -i $opt_iterations -s $opt_size -t $theme_id";
-    my $flags = "-i $i $verbose_str -e \"$extra_flags\" -- $x_min $x_max $y_min $y_max $x_j $y_j";
-    run_command("start /b perl $FindBin::Bin/fractal.pl $flags");
+    my $bit_accuracy = "64";
+    if (abs($x_max - $x_min) < 1.0e-15 or abs($y_max - $y_min) < 1.0e-15)
+    {
+        $bit_accuracy = "128";
+    }
+    elsif (abs($x_max - $x_min) < 1.0e-11 or abs($y_max - $y_min) < 1.0e-11)
+    {
+        $bit_accuracy = "80";
+    }
 
-    return 1;
+    return [
+        $i,
+        $bit_accuracy,
+        $x_min,
+        $x_max,
+        $y_min,
+        $y_max,
+        $x_j,
+        $y_j,
+    ];
 }
 
-sub check_jobs
+sub run_frame_jobs
 {
-    my ($end) = @_;
+    my @jobs = @_;
+    return if not @jobs;
 
-    print "INFO: Current frame job indices: @jobs\n" if $opt_verbose;
+    my $worker_count = @jobs < $opt_processes ? scalar(@jobs) : $opt_processes;
+    my $queue = Thread::Queue->new();
+    my @workers = map { threads->create(\&frame_worker, $queue) } 1 .. $worker_count;
+    $queue->enqueue(@jobs);
+    $queue->end();
 
-    while (1)
+    my @failures = ();
+    for my $worker (@workers)
     {
-        if ($end)
-        {
-            last if (scalar(@jobs) == 0);
-        }
-        else
-        {
-            last if (scalar(@jobs) < $opt_processes);
-        }
-
-        foreach my $j (@jobs)
-        {
-            my $index = sprintf("%010d", $j);
-            my $name = "frame-$index";
-            if (-e "$name.png" and not -d "$name" and not -d "$name/$name.lok")
-            {
-                my $k = 0;
-                $k++ until ($k == scalar(@jobs) or $jobs[$k] eq $j);
-                die("ERROR: Error in search for completed job with index $k\n") if $k == $opt_num;
-                splice(@jobs, $k, 1);
-            }
-        }
-
-        sleep(2);
+        push(@failures, @{$worker->join()});
     }
+
+    die("ERROR: Failed to generate frame(s): " . join(", ", sort { $a <=> $b } @failures) . "\n") if @failures;
+}
+
+sub frame_worker
+{
+    my ($queue) = @_;
+    my @failures = ();
+    local $| = 1;
+
+    while (my $job = $queue->dequeue())
+    {
+        my ($i, $bit_accuracy, $x_min, $x_max, $y_min, $y_max, $x_j, $y_j) = @$job;
+        my $index = sprintf("%010d", $i);
+        my $prefix = "frame-$index";
+        my $executable = File::Spec->catfile(
+            $FindBin::Bin,
+            "mandelbrot-$bit_accuracy" . ($^O eq "MSWin32" ? ".exe" : "")
+        );
+        my @args = (
+            "-c", $opt_contours,
+            "-f", $opt_fractal,
+            "-i", $opt_iterations,
+            "-s", $opt_size,
+            "-t", $theme_id,
+            "-o", $prefix,
+            $x_min, $x_max, $y_min, $y_max, $x_j, $y_j,
+        );
+
+        print "\n" if $opt_verbose;
+        print "INFO: Iteration = $i\n";
+        print "RUNNING: $executable @args\n" if $opt_verbose;
+        system {$executable} $executable, @args;
+        my $status = $?;
+        if ($status == -1 or $status != 0 or not -f "$prefix.png")
+        {
+            push(@failures, $i);
+        }
+    }
+
+    return \@failures;
 }
 
 sub check_frames
@@ -439,10 +479,11 @@ sub is_skipped
 
 sub run_command
 {
-    my ($cmd) = @_;
+    my ($program, @args) = @_;
 
-    print "RUNNING: $cmd\n" if $opt_verbose;
-    system($cmd);
+    print "RUNNING: $program @args\n" if $opt_verbose;
+    system {$program} $program, @args;
+    die("ERROR: Command failed: $program (status $?)\n") if $? != 0;
 }
 
 sub remove_file

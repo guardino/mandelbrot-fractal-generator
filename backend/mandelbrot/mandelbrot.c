@@ -38,7 +38,7 @@ struct sregion {
 struct cpoint *scanPoints(const struct cregion domain, const struct sregion screen, unsigned int maxIterations, const struct cpoint C, const bool isJulia);
 FILE *outputPoints(char *fileName, const struct cpoint *cpoints, const struct cregion domain, const struct sregion screen, unsigned int contourLevels);
 FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struct sregion screen, unsigned int maxIterations, char symbol);
-FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned int width, unsigned int height, unsigned int colorTheme);
+FILE *createGnuplotScipt(char *fileName, char *pngFile, char *csvFile, unsigned int contourLevels, unsigned int width, unsigned int height, unsigned int colorTheme);
 char *getRGBFormula(unsigned int colorTheme);
 
 int main(int argc, char *argv[])
@@ -48,6 +48,11 @@ int main(int argc, char *argv[])
     unsigned int colorTheme = COLOR_THEME;
     unsigned int maxIterations = MAX_ITERATIONS;
     unsigned int fractalType = FRACTAL_TYPE;
+    char outputPrefix[256] = "contours";
+    char csvFile[264];
+    char plotFile[264];
+    char pngFile[264];
+    char textFile[264];
     unsigned int nPx;
     unsigned int nPy;
     REAL xMin = -2.5, xMax = 1.0, yMin = -1.3, yMax = 1.3;
@@ -55,7 +60,10 @@ int main(int argc, char *argv[])
 
     int c;
     while (--argc > 6 && (*++argv)[0] == '-')
+    {
+        bool stopOption = false;
         while ((c = *++argv[0]) && !isdigit(c))
+        {
             switch (c) {
             case 'c':
                 contourLevels = atoi(*++argv);
@@ -77,14 +85,29 @@ int main(int argc, char *argv[])
                 colorTheme = atoi(*++argv);
                 --argc;
                 break;
+            case 'o':
+                if (strlen(*++argv) >= sizeof(outputPrefix)) {
+                    fprintf(stderr, "mandelbrot: output prefix is too long\n");
+                    return 1;
+                }
+                strcpy(outputPrefix, *argv);
+                --argc;
+                stopOption = true;
+                break;
             default:
                 printf("mandelbrot: illegal option %c\n", c);
                 argc = -1;
                 break;
             }
+            if (stopOption) {
+                break;
+            }
+        }
+    }
 
     if (argc < 4) {
-        printf("Usage: mandelbrot [-c contours] [-f fractal] [-i iterations] [-s size] [-t theme] [x_min x_max y_min y_max]\n");
+        printf("Usage: mandelbrot [-c contours] [-f fractal] [-i iterations] [-s size] [-t theme] [-o output-prefix] x_min x_max y_min y_max [x_j y_j]\n");
+        printf("    x_j and y_j specify the Julia parameter and default to 0.0 when omitted.\n");
         printf("Examples:\n");
         printf("    Mandelbrot Set: mandelbrot -c 64 -f 1 -i 2048 -s 1024 -t 3 -2.5 1.0 -1.3 1.3 0.0 0.0\n");
         printf("    Julia Set:      mandelbrot -c 64 -f 2 -i 2048 -s 1024 -t 3 -1.5 1.5 -1.5 1.5 0.45 0.1428\n");
@@ -129,6 +152,22 @@ int main(int argc, char *argv[])
         #endif  // REAL_QUAD
     }
 
+    for (const char *p = outputPrefix; *p; p++) {
+        if (!isalnum((unsigned char)*p) && *p != '-' && *p != '_' && *p != '.') {
+            fprintf(stderr, "mandelbrot: output prefix contains an invalid character\n");
+            return 1;
+        }
+    }
+
+    snprintf(csvFile, sizeof(csvFile), "%s.csv", outputPrefix);
+    snprintf(plotFile, sizeof(plotFile), "%s.plt", outputPrefix);
+    snprintf(pngFile, sizeof(pngFile), "%s.png", outputPrefix);
+    if (strcmp(outputPrefix, "contours") == 0) {
+        strcpy(textFile, "mandelbrot.txt");
+    } else {
+        snprintf(textFile, sizeof(textFile), "%s.txt", outputPrefix);
+    }
+
     if (yMax - yMin > xMax - xMin)
     {
         nPx = (xMax - xMin) * maxPixels / (yMax - yMin);
@@ -148,27 +187,31 @@ int main(int argc, char *argv[])
 
     struct cpoint *cpoints = scanPoints(domain, screen, maxIterations, C, fractalType == 2);
 
-    #ifdef _WIN32
-        system("cmd.exe /c del /F/Q contours.* mandelbrot.txt > NUL 2>&1");
-    #else
-        system("rm -f contours.* mandelbrot.txt > /dev/null 2>&1");
-    #endif
+    remove(csvFile);
+    remove(plotFile);
+    remove(pngFile);
+    remove(textFile);
 
     if (cpoints == NULL) {
         printf("mandelbrot: error in calculating points");
         return 2;
     }
 
-    outputPoints("contours.csv", cpoints, domain, screen, contourLevels);
+    outputPoints(csvFile, cpoints, domain, screen, contourLevels);
     if (colorTheme == 0) {
-        printPointsInSet("mandelbrot.txt", cpoints, screen, maxIterations, '*');
+        printPointsInSet(textFile, cpoints, screen, maxIterations, '*');
     }
 
     free(cpoints);
 
-    if (colorTheme > 0 && createGnuplotScipt("contours.plt", contourLevels, nPx, nPy, colorTheme) != NULL)
+    if (colorTheme > 0 && createGnuplotScipt(plotFile, pngFile, csvFile, contourLevels, nPx, nPy, colorTheme) != NULL)
     {
-        system("gnuplot < contours.plt");
+        char command[300];
+        snprintf(command, sizeof(command), "gnuplot < %s", plotFile);
+        if (system(command) != 0) {
+            fprintf(stderr, "mandelbrot: gnuplot failed\n");
+            return 3;
+        }
         //system("ps2pdf contours.ps");
         //system("contours.pdf");
     }
@@ -280,7 +323,7 @@ FILE *printPointsInSet(char *fileName, const struct cpoint *cpoints, const struc
     fclose(fp);
 }
 
-FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned int width, unsigned int height, unsigned int colorTheme)
+FILE *createGnuplotScipt(char *fileName, char *pngFile, char *csvFile, unsigned int contourLevels, unsigned int width, unsigned int height, unsigned int colorTheme)
 {
     FILE *fp;
     if ((fp = fopen(fileName, "w")) == NULL) {
@@ -311,8 +354,8 @@ FILE *createGnuplotScipt(char *fileName, unsigned int contourLevels, unsigned in
     fprintf(fp, "set tmargin at screen 0\n");
     fprintf(fp, "set bmargin at screen 1\n");
     fprintf(fp, "set terminal png size %d,%d\n", width, height);
-    fprintf(fp, "set output 'contours.png'\n");
-    fprintf(fp, "splot 'contours.csv' u 1:2:3 w image\n");
+    fprintf(fp, "set output '%s'\n", pngFile);
+    fprintf(fp, "splot '%s' u 1:2:3 w image\n", csvFile);
     fclose(fp);
 
     return fp;
