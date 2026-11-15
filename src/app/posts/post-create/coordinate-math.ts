@@ -10,6 +10,52 @@ export interface CoordinateBounds {
   yMax: string;
 }
 
+export interface CoordinateRange {
+  min: string;
+  max: string;
+}
+
+export function formatCoordinate(value: string): string {
+  const numericValue = Number(value);
+  return isFinite(numericValue) ? numericValue.toString() : new Decimal(value).toString();
+}
+
+export function formatCoordinateRange(min: string, max: string): CoordinateRange {
+  const minDecimal = new Decimal(min);
+  const maxDecimal = new Decimal(max);
+  const formattedMin = formatCoordinate(min);
+  const formattedMax = formatCoordinate(max);
+
+  if (formattedMin !== formattedMax || minDecimal.eq(maxDecimal)) {
+    return { min: formattedMin, max: formattedMax };
+  }
+
+  const maxPrecision = Math.max(17, minDecimal.c.length, maxDecimal.c.length);
+  for (let precision = 17; precision <= maxPrecision; precision++) {
+    const preciseMin = trimTrailingZeros(minDecimal.toPrecision(precision));
+    const preciseMax = trimTrailingZeros(maxDecimal.toPrecision(precision));
+    if (preciseMin !== preciseMax) {
+      return { min: preciseMin, max: preciseMax };
+    }
+  }
+
+  return { min: minDecimal.toString(), max: maxDecimal.toString() };
+}
+
+export function formatCoordinateBounds(bounds: CoordinateBounds): CoordinateBounds {
+  const x = formatCoordinateRange(bounds.xMin, bounds.xMax);
+  const y = formatCoordinateRange(bounds.yMin, bounds.yMax);
+  return { xMin: x.min, xMax: x.max, yMin: y.min, yMax: y.max };
+}
+
+export function getCoordinateForSubmission(
+  formValue: string,
+  preciseValue: string,
+  displayedValue: string
+): string {
+  return formValue === displayedValue ? preciseValue : formValue;
+}
+
 export function getSelectedBounds(
   bounds: CoordinateBounds,
   selection: number[],
@@ -66,4 +112,14 @@ export function getSelectedBounds(
 
 export function getCoordinateCenter(min: string, max: string): string {
   return new Decimal(min).plus(max).div(2).toString();
+}
+
+function trimTrailingZeros(value: string): string {
+  const exponentIndex = value.indexOf("e");
+  const mantissa = exponentIndex === -1 ? value : value.substring(0, exponentIndex);
+  const exponent = exponentIndex === -1 ? "" : value.substring(exponentIndex);
+  const trimmedMantissa = mantissa.indexOf(".") === -1
+    ? mantissa
+    : mantissa.replace(/0+$/, "").replace(/\.$/, "");
+  return trimmedMantissa + exponent;
 }

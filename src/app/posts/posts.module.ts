@@ -9,9 +9,18 @@ import { PostViewComponent } from "./post-view/post-view.component";
 import { CanvasComponent } from "./canvas/canvas.component";
 import { AngularMaterialModule } from "../angular-material.module";
 import { JuliaSettingsComponent } from "./post-create/julia-settings.component";
+import { CoordinateRangePipe, CoordinateValuePipe } from "./post-create/coordinate-range.pipe";
 
 @NgModule({
-  declarations: [PostCreateComponent, PostListComponent, PostViewComponent, CanvasComponent, JuliaSettingsComponent],
+  declarations: [
+    PostCreateComponent,
+    PostListComponent,
+    PostViewComponent,
+    CanvasComponent,
+    JuliaSettingsComponent,
+    CoordinateRangePipe,
+    CoordinateValuePipe
+  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,

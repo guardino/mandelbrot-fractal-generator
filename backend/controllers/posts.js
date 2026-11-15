@@ -4,6 +4,7 @@ const path = require("path");
 const imageStorageDirectory = require("../image-storage");
 
 const Post = require("../models/post");
+const { formatCoordinate, formatCoordinateRange } = require("../coordinate-format");
 
 const use_80bit_precision  = 1.0e-11;  // 1.0e-13 is the limit
 const use_128bit_precision = 1.0e-15;  // 1.0e-16 is the limit
@@ -217,23 +218,33 @@ function generateMandelbrot(req) {
 
   const mandelbrotPath = path.join(__dirname, "../mandelbrot/", mandelbrot_exe);
   tempDir = getTempDir();
-  cmd = "cd " + tempDir + " && " +
-        "\"" + mandelbrotPath + "\"" +
-        " -c " + req.body.contours +
-        " -f " + req.body.fractal +
-        " -i " + req.body.iterations +
-        " -s " + req.body.size +
-        " -t " + req.body.theme +
-        " " + req.body.xMin + " " +  req.body.xMax + " " +  req.body.yMin + " " +  req.body.yMax;
-
-  if (req.body.fractal == "2") {
-    cmd += " " + req.body.xC + " " +  req.body.yC;
-  }
-  else {
-    cmd += " 0.0 0.0";
-  }
-
-  console.log("RUNNING: " + cmd)
+  const commandOptions = "cd " + tempDir + " && " +
+    "\"" + mandelbrotPath + "\"" +
+    " -c " + req.body.contours +
+    " -f " + req.body.fractal +
+    " -i " + req.body.iterations +
+    " -s " + req.body.size +
+    " -t " + req.body.theme;
+  const coordinateArgs = [
+    req.body.xMin,
+    req.body.xMax,
+    req.body.yMin,
+    req.body.yMax,
+    req.body.fractal == "2" ? req.body.xC : "0.0",
+    req.body.fractal == "2" ? req.body.yC : "0.0"
+  ];
+  cmd = commandOptions + " " + coordinateArgs.join(" ");
+  const displayX = formatCoordinateRange(req.body.xMin, req.body.xMax);
+  const displayY = formatCoordinateRange(req.body.yMin, req.body.yMax);
+  const displayCoordinateArgs = [
+    displayX.min,
+    displayX.max,
+    displayY.min,
+    displayY.max,
+    formatCoordinate(coordinateArgs[4]),
+    formatCoordinate(coordinateArgs[5])
+  ];
+  console.log("RUNNING: " + commandOptions + " " + displayCoordinateArgs.join(" "));
   result = execSync(cmd);
 
   const imageFilename = Date.now() + ".png";

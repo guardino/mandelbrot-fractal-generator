@@ -23,10 +23,10 @@
         <img [src]="post.imagePath" [alt]="post.title">
       </div>
       <div class="post-range">
-        <p>{{ post.xMin }} &lt; <i>x</i> &lt; {{ post.xMax }}</p>
-        <p>{{ post.yMin }} &lt; <i>y</i> &lt; {{ post.yMax }}</p>
+        <p>{{ post.xMin | coordinateRange:post.xMax:'min' }} &lt; <i>x</i> &lt; {{ post.xMin | coordinateRange:post.xMax:'max' }}</p>
+        <p>{{ post.yMin | coordinateRange:post.yMax:'min' }} &lt; <i>y</i> &lt; {{ post.yMin | coordinateRange:post.yMax:'max' }}</p>
         <div *ngIf="post.fractal === '2'">
-          <p><i>C</i>: ({{ post.xC}}, {{ post.yC }})</p>
+          <p><i>C</i>: ({{ post.xC | coordinateValue }}, {{ post.yC | coordinateValue }})</p>
         </div>
       </div>
       <mat-action-row *ngIf="userIsAuthenticated && userId === post.creator">

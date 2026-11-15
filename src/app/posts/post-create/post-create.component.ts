@@ -9,7 +9,14 @@ import { Post } from "../post.model";
 import { JuliaSettingsComponent } from "./julia-settings.component";
 import { mimeType } from "./mime-type.validator";
 import { AuthService } from "../../auth/auth.service";
-import { getCoordinateCenter, getSelectedBounds } from "./coordinate-math";
+import {
+  CoordinateBounds,
+  formatCoordinate,
+  formatCoordinateBounds,
+  getCoordinateForSubmission,
+  getCoordinateCenter,
+  getSelectedBounds
+} from "./coordinate-math";
 
 @Component({
   selector: "app-post-create",
@@ -73,6 +80,10 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   private xMaxInit: string;
   private yMinInit: string;
   private yMaxInit: string;
+  private preciseBounds: CoordinateBounds;
+  private displayedBounds: CoordinateBounds;
+  private preciseJuliaConstants: { xC: string; yC: string };
+  private displayedJuliaConstants: { xC: string; yC: string };
 
   constructor(
     public postsService: PostsService,
@@ -82,14 +93,18 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   ) {}
 
   setDefaultsOnCreate() {
+    this.preciseBounds = null;
+    this.displayedBounds = null;
+    this.preciseJuliaConstants = null;
+    this.displayedJuliaConstants = null;
     this.form.setValue({
       title: this.isJulia ? "Default Julia Set" : "Default Mandelbrot Set",
       xMin: this.isJulia ? "-1.5" : "-2.5",
-      xMax: this.isJulia ?  "1.5" :  "1.0",
+      xMax: this.isJulia ?  "1.5" :  "1",
       yMin: this.isJulia ? "-1.5" : "-1.3",
       yMax: this.isJulia ?  "1.5" :  "1.3",
-      xC:   this.isJulia ? "0.285" : "0.0",
-      yC:   this.isJulia ?  "0.01" : "0.0",
+      xC:   this.isJulia ? "0.285" : "0",
+      yC:   this.isJulia ?  "0.01" : "0",
       contours: this.contourList[1].value,
       theme: this.themes[2].value,
       iterations: this.iterationList[2].value,
@@ -99,18 +114,27 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   }
 
   setDefaultsOnChange() {
+    const xC = this.isJulia
+      ? getCoordinateCenter(this.getBoundValue("xMin"), this.getBoundValue("xMax"))
+      : "0.0";
+    const yC = this.isJulia
+      ? getCoordinateCenter(this.getBoundValue("yMin"), this.getBoundValue("yMax"))
+      : "0.0";
+    this.preciseBounds = null;
+    this.displayedBounds = null;
+    this.preciseJuliaConstants = this.isJulia ? { xC: xC, yC: yC } : null;
+    this.displayedJuliaConstants = {
+      xC: formatCoordinate(xC),
+      yC: formatCoordinate(yC)
+    };
     this.form.setValue({
       title: this.isJulia ? "Example Julia Set" : "Example Mandelbrot Set",
       xMin: this.isJulia ? "-1.5" : "-2.5",
-      xMax: this.isJulia ?  "1.5" :  "1.0",
+      xMax: this.isJulia ?  "1.5" :  "1",
       yMin: this.isJulia ? "-1.5" : "-1.3",
       yMax: this.isJulia ?  "1.5" :  "1.3",
-      xC: this.isJulia
-        ? getCoordinateCenter(this.form.value.xMin, this.form.value.xMax)
-        : "0.0",
-      yC: this.isJulia
-        ? getCoordinateCenter(this.form.value.yMin, this.form.value.yMax)
-        : "0.0",
+      xC: this.displayedJuliaConstants.xC,
+      yC: this.displayedJuliaConstants.yC,
       contours: this.form.value.contours,
       theme: this.form.value.theme,
       iterations: this.form.value.iterations,
@@ -176,15 +200,30 @@ export class PostCreateComponent implements OnInit, OnDestroy {
 
           this.isJulia = this.post.fractal != null && this.post.fractal == "2" ? true : false;
           this.parentId = this.post.parentId;
-
-          this.form.setValue({
-            title: this.post.title,
+          this.preciseBounds = {
             xMin: this.post.xMin,
             xMax: this.post.xMax,
             yMin: this.post.yMin,
-            yMax: this.post.yMax,
+            yMax: this.post.yMax
+          };
+          this.displayedBounds = formatCoordinateBounds(this.preciseBounds);
+          this.preciseJuliaConstants = {
             xC: this.post.xC != null ? this.post.xC : "0.0",
-            yC: this.post.yC != null ? this.post.yC : "0.0",
+            yC: this.post.yC != null ? this.post.yC : "0.0"
+          };
+          this.displayedJuliaConstants = {
+            xC: formatCoordinate(this.preciseJuliaConstants.xC),
+            yC: formatCoordinate(this.preciseJuliaConstants.yC)
+          };
+
+          this.form.setValue({
+            title: this.post.title,
+            xMin: this.displayedBounds.xMin,
+            xMax: this.displayedBounds.xMax,
+            yMin: this.displayedBounds.yMin,
+            yMax: this.displayedBounds.yMax,
+            xC: this.displayedJuliaConstants.xC,
+            yC: this.displayedJuliaConstants.yC,
             contours: this.post.contours != null ? this.post.contours : this.contourList[1].value,
             theme: this.post.theme != null ? this.post.theme : this.themes[9].value,
             iterations: this.post.iterations != null ? this.post.iterations : this.iterationList[1].value,
@@ -213,12 +252,12 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       this.postsService.addPost(
         this.mode === "clone" ? this.postId : null,
         this.form.value.title,
-        this.form.value.xMin,
-        this.form.value.xMax,
-        this.form.value.yMin,
-        this.form.value.yMax,
-        this.form.value.xC,
-        this.form.value.yC,
+        this.getBoundValue("xMin"),
+        this.getBoundValue("xMax"),
+        this.getBoundValue("yMin"),
+        this.getBoundValue("yMax"),
+        this.getJuliaConstantValue("xC"),
+        this.getJuliaConstantValue("yC"),
         this.form.value.contours,
         this.form.value.theme,
         this.form.value.iterations,
@@ -231,12 +270,12 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         this.postId,
         this.parentId,
         this.form.value.title,
-        this.form.value.xMin,
-        this.form.value.xMax,
-        this.form.value.yMin,
-        this.form.value.yMax,
-        this.form.value.xC,
-        this.form.value.yC,
+        this.getBoundValue("xMin"),
+        this.getBoundValue("xMax"),
+        this.getBoundValue("yMin"),
+        this.getBoundValue("yMax"),
+        this.getJuliaConstantValue("xC"),
+        this.getJuliaConstantValue("yC"),
         this.form.value.contours,
         this.form.value.theme,
         this.form.value.iterations,
@@ -265,12 +304,14 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       range[4],
       range[5]
     );
+    this.preciseBounds = selectedBounds;
+    this.displayedBounds = formatCoordinateBounds(selectedBounds);
     this.form.setValue({
       title: this.form.value.title,
-      xMin: selectedBounds.xMin,
-      xMax: selectedBounds.xMax,
-      yMin: selectedBounds.yMin,
-      yMax: selectedBounds.yMax,
+      xMin: this.displayedBounds.xMin,
+      xMax: this.displayedBounds.xMax,
+      yMin: this.displayedBounds.yMin,
+      yMax: this.displayedBounds.yMax,
       xC: this.form.value.xC,
       yC: this.form.value.yC,
       contours: this.form.value.contours,
@@ -298,5 +339,29 @@ export class PostCreateComponent implements OnInit, OnDestroy {
 
   toggleAdvancedPanel() {
     this.showAdvancedPanel = !this.showAdvancedPanel;
+  }
+
+  private getBoundValue(key: keyof CoordinateBounds): string {
+    if (this.preciseBounds && this.displayedBounds &&
+        this.form.value[key] === this.displayedBounds[key]) {
+      return getCoordinateForSubmission(
+        this.form.value[key],
+        this.preciseBounds[key],
+        this.displayedBounds[key]
+      );
+    }
+    return this.form.value[key];
+  }
+
+  private getJuliaConstantValue(key: "xC" | "yC"): string {
+    if (this.preciseJuliaConstants && this.displayedJuliaConstants &&
+        this.form.value[key] === this.displayedJuliaConstants[key]) {
+      return getCoordinateForSubmission(
+        this.form.value[key],
+        this.preciseJuliaConstants[key],
+        this.displayedJuliaConstants[key]
+      );
+    }
+    return this.form.value[key];
   }
 }
