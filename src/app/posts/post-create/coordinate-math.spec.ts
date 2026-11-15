@@ -63,4 +63,11 @@ describe('coordinate math', () => {
       '0.12345678901234568'
     )).toBe('0.12345678901234569');
   });
+
+  it('limits calculated coordinates to 80 significant digits', () => {
+    const longCoordinate = '0.' + '1'.repeat(100);
+    const center = getCoordinateCenter(longCoordinate, longCoordinate);
+
+    expect(center.split('.')[1].length).toBe(80);
+  });
 });

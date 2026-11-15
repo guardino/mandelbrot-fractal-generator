@@ -1,5 +1,10 @@
 const Big = require("big.js")();
 Big.DP = 1000;
+const COMMAND_SIGNIFICANT_DIGITS = 80;
+
+exports.formatCoordinateForCommand = value => {
+  return new Big(new Big(value).toPrecision(COMMAND_SIGNIFICANT_DIGITS)).toString();
+};
 
 exports.formatCoordinate = value => {
   const numericValue = Number(value);

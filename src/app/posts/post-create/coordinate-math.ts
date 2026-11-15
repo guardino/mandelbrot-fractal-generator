@@ -2,6 +2,7 @@ import * as Big from 'big.js';
 
 const Decimal = Big();
 Decimal.DP = 1000;
+const COORDINATE_SIGNIFICANT_DIGITS = 80;
 
 export interface CoordinateBounds {
   xMin: string;
@@ -103,15 +104,15 @@ export function getSelectedBounds(
   );
 
   return {
-    xMin: selectedXMin.toString(),
-    xMax: selectedXMax.toString(),
-    yMin: selectedYMin.toString(),
-    yMax: selectedYMax.toString()
+    xMin: toCoordinateString(selectedXMin),
+    xMax: toCoordinateString(selectedXMax),
+    yMin: toCoordinateString(selectedYMin),
+    yMax: toCoordinateString(selectedYMax)
   };
 }
 
 export function getCoordinateCenter(min: string, max: string): string {
-  return new Decimal(min).plus(max).div(2).toString();
+  return toCoordinateString(new Decimal(min).plus(max).div(2));
 }
 
 function trimTrailingZeros(value: string): string {
@@ -122,4 +123,8 @@ function trimTrailingZeros(value: string): string {
     ? mantissa
     : mantissa.replace(/0+$/, "").replace(/\.$/, "");
   return trimmedMantissa + exponent;
+}
+
+function toCoordinateString(value: Big): string {
+  return new Decimal(value.toPrecision(COORDINATE_SIGNIFICANT_DIGITS)).toString();
 }

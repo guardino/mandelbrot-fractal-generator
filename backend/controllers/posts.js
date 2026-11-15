@@ -4,7 +4,11 @@ const path = require("path");
 const imageStorageDirectory = require("../image-storage");
 
 const Post = require("../models/post");
-const { formatCoordinate, formatCoordinateRange } = require("../coordinate-format");
+const {
+  formatCoordinate,
+  formatCoordinateForCommand,
+  formatCoordinateRange
+} = require("../coordinate-format");
 
 const use_80bit_precision  = 1.0e-11;  // 1.0e-13 is the limit
 const use_128bit_precision = 1.0e-15;  // 1.0e-16 is the limit
@@ -225,7 +229,7 @@ function generateMandelbrot(req) {
     " -i " + req.body.iterations +
     " -s " + req.body.size +
     " -t " + req.body.theme;
-  const coordinateArgs = [
+  const rawCoordinateArgs = [
     req.body.xMin,
     req.body.xMax,
     req.body.yMin,
@@ -233,9 +237,10 @@ function generateMandelbrot(req) {
     req.body.fractal == "2" ? req.body.xC : "0.0",
     req.body.fractal == "2" ? req.body.yC : "0.0"
   ];
+  const coordinateArgs = rawCoordinateArgs.map(formatCoordinateForCommand);
   cmd = commandOptions + " " + coordinateArgs.join(" ");
-  const displayX = formatCoordinateRange(req.body.xMin, req.body.xMax);
-  const displayY = formatCoordinateRange(req.body.yMin, req.body.yMax);
+  const displayX = formatCoordinateRange(coordinateArgs[0], coordinateArgs[1]);
+  const displayY = formatCoordinateRange(coordinateArgs[2], coordinateArgs[3]);
   const displayCoordinateArgs = [
     displayX.min,
     displayX.max,
